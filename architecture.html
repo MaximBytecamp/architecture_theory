@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Атлас архитектур ПО · учебник</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Unbounded:wght@400;600;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0e14;--bg-soft:#0f1620;--panel:#121b27;--panel-2:#16202e;
+  --ink:#e9eef5;--ink-dim:#8a98ab;--ink-soft:#c3cedb;--line:#22303f;
+  --acc:#ff7849;--acc-2:#3ddc97;--acc-3:#5b9cff;--acc-4:#c792ea;--acc-5:#ffd166;
+  --glow:rgba(255,120,73,.16);
+  --mono:'Space Mono',monospace;--disp:'Unbounded',sans-serif;--body:'Manrope',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(700px circle at 10% -5%,rgba(255,120,73,.09),transparent 45%),
+  radial-gradient(800px circle at 96% 8%,rgba(91,156,255,.07),transparent 50%),
+  radial-gradient(900px circle at 50% 112%,rgba(61,220,151,.05),transparent 50%)}
+body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.wrap{position:relative;z-index:1}
+.shell{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:300px;flex:0 0 300px;position:sticky;top:0;height:100vh;border-right:1px solid var(--line);
+  background:linear-gradient(180deg,var(--bg-soft),var(--bg));padding:26px 18px;overflow-y:auto}
+.sidebar::-webkit-scrollbar{width:6px}.sidebar::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.brand .mark{width:40px;height:40px;border-radius:11px;flex:0 0 40px;background:conic-gradient(from 200deg,var(--acc),var(--acc-3),var(--acc-2),var(--acc));
+  display:grid;place-items:center;font-family:var(--mono);font-weight:700;color:#0a0e14;box-shadow:0 0 26px var(--glow)}
+.brand h1{font-family:var(--disp);font-size:17px;font-weight:800;letter-spacing:-.5px;line-height:1.1}
+.brand small{display:block;color:var(--ink-dim);font-size:10px;font-family:var(--mono);letter-spacing:1.5px;margin-top:2px}
+.nav-search{margin:22px 0 14px;width:100%;background:var(--panel);border:1px solid var(--line);color:var(--ink);padding:10px 14px;border-radius:10px;font-family:var(--body);font-size:13px}
+.nav-search:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px var(--glow)}
+.nav-group-label{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-dim);margin:18px 8px 8px;display:flex;align-items:center;gap:8px}
+.nav-group-label::after{content:"";flex:1;height:1px;background:var(--line)}
+.nav-item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:none;color:var(--ink-dim);cursor:pointer;
+  padding:9px 12px;border-radius:9px;font-family:var(--body);font-size:13px;font-weight:500;transition:.18s;position:relative;line-height:1.3}
+.nav-item:hover{color:var(--ink);background:var(--panel)}
+.nav-item.active{color:var(--ink);background:var(--panel-2)}
+.nav-item.active::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:58%;border-radius:2px;background:var(--acc);box-shadow:0 0 10px var(--acc)}
+.nav-item .dot{width:8px;height:8px;border-radius:50%;flex:0 0 8px}
+
+/* MAIN */
+.main{flex:1;min-width:0}
+.topbar{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:rgba(10,14,20,.74);border-bottom:1px solid var(--line);
+  padding:13px 42px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.crumb{font-family:var(--mono);font-size:12px;color:var(--ink-dim);letter-spacing:.3px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crumb b{color:var(--acc)}
+.progress{display:flex;gap:10px;align-items:center;flex:0 0 auto}
+.progress .pill{font-family:var(--mono);font-size:11px;color:var(--ink-dim)}
+.bar{width:120px;height:6px;border-radius:3px;background:var(--panel);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc-5));transition:width .4s}
+.content{padding:44px 42px 90px;max-width:1060px;margin:0 auto}
+.page{display:none;animation:fade .4s ease}
+.page.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* HERO */
+.hero .kicker{font-family:var(--mono);font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--acc);margin-bottom:18px}
+.hero h2{font-family:var(--disp);font-size:clamp(32px,4.8vw,56px);font-weight:800;line-height:1.03;letter-spacing:-1.5px;margin-bottom:20px}
+.hero h2 em{font-style:normal;color:var(--acc)}
+.hero p.lead{font-size:17.5px;color:var(--ink-dim);max-width:660px;margin-bottom:30px}
+.hero-stats{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 20px;flex:1;min-width:140px}
+.stat .num{font-family:var(--disp);font-size:28px;font-weight:800;color:var(--acc-2)}
+.stat .lbl{font-size:12px;color:var(--ink-dim)}
+.intro-note{background:linear-gradient(135deg,rgba(91,156,255,.07),rgba(61,220,151,.04));border:1px solid var(--line);border-left:3px solid var(--acc-3);border-radius:12px;padding:18px 22px;margin:26px 0 8px;font-size:14.5px;color:var(--ink-soft)}
+.cat-section{margin-top:38px}
+.cat-head{display:flex;align-items:baseline;gap:14px;margin-bottom:8px}
+.cat-head h3{font-family:var(--disp);font-size:20px;font-weight:600}
+.cat-head .meta{font-family:var(--mono);font-size:11px;color:var(--ink-dim)}
+.cat-desc{font-size:14px;color:var(--ink-dim);margin-bottom:16px;max-width:760px}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(252px,1fr));gap:15px}
+.arch-card{background:linear-gradient(160deg,var(--panel),var(--bg-soft));border:1px solid var(--line);border-radius:15px;padding:20px;cursor:pointer;transition:.22s;position:relative;overflow:hidden}
+.arch-card::after{content:"";position:absolute;inset:0;background:radial-gradient(280px circle at var(--mx,50%) var(--my,0),var(--cc),transparent 60%);opacity:0;transition:.3s}
+.arch-card:hover{transform:translateY(-4px);border-color:var(--cc)}
+.arch-card:hover::after{opacity:.10}
+.arch-card .idx{font-family:var(--mono);font-size:10.5px;color:var(--ink-dim)}
+.arch-card h4{font-family:var(--disp);font-size:15px;font-weight:600;margin:10px 0 7px;position:relative;z-index:1;line-height:1.2}
+.arch-card p{font-size:12.8px;color:var(--ink-dim);position:relative;z-index:1}
+.arch-card .go{display:inline-flex;align-items:center;gap:5px;margin-top:13px;font-family:var(--mono);font-size:10.5px;color:var(--cc);position:relative;z-index:1}
+
+/* ARTICLE */
+.art-head{margin-bottom:30px;padding-bottom:24px;border-bottom:1px solid var(--line)}
+.art-head .cat{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase}
+.art-head h2{font-family:var(--disp);font-size:clamp(28px,4vw,42px);font-weight:800;letter-spacing:-1px;line-height:1.05;margin:8px 0 12px}
+.art-head .tagline{font-size:17px;color:var(--ink-soft);max-width:720px}
+.art-accent{height:4px;width:60px;border-radius:2px;margin-bottom:4px}
+
+section.block{margin:36px 0}
+.section-label{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.section-label .ln{height:1px;flex:1;background:var(--line)}
+.section-label h4{font-family:var(--mono);font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--acc-2)}
+
+.prose h5.sub{font-family:var(--disp);font-size:18px;font-weight:600;margin:26px 0 10px;color:var(--ink)}
+.prose h5.sub:first-child{margin-top:0}
+.prose p{font-size:15.5px;color:var(--ink-soft);margin-bottom:14px;max-width:760px}
+.prose strong{color:var(--ink);font-weight:600}
+
+.diagram{background:radial-gradient(circle at 50% 0,var(--panel-2),var(--bg-soft));border:1px solid var(--line);border-radius:18px;padding:26px;overflow:hidden}
+.diagram svg{width:100%;height:auto;display:block;max-width:720px;margin:0 auto}
+.diagram .cap{font-family:var(--mono);font-size:11px;color:var(--ink-dim);text-align:center;margin-top:16px;letter-spacing:.3px}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.two-col{grid-template-columns:1fr}}
+.feat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.feat.good{border-left:3px solid var(--acc-2)}.feat.bad{border-left:3px solid var(--acc)}
+.feat h5{font-family:var(--body);font-size:14px;font-weight:700;margin-bottom:11px;letter-spacing:.3px}
+.feat.good h5{color:var(--acc-2)}.feat.bad h5{color:var(--acc)}
+.feat ul{list-style:none}
+.feat li{font-size:13.5px;color:var(--ink-dim);padding:5px 0 5px 20px;position:relative}
+.feat li .ft{display:block;color:var(--ink-soft);font-weight:600;font-size:13.8px}
+.feat li .fexp{display:block;color:var(--ink-dim);font-size:12.8px;line-height:1.5;margin-top:3px;font-weight:400}
+.feat li:not(:last-child){padding-bottom:13px}
+.feat.good li::before{content:"+";position:absolute;left:2px;color:var(--acc-2);font-weight:700}
+.feat.bad li::before{content:"–";position:absolute;left:2px;color:var(--acc);font-weight:700}
+
+.choose{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.choose{grid-template-columns:1fr}}
+.choose .box{border:1px solid var(--line);border-radius:14px;padding:18px 20px;background:var(--bg-soft)}
+.choose .box.yes{border-top:3px solid var(--acc-2)}
+.choose .box.no{border-top:3px solid var(--acc)}
+.choose h5{font-family:var(--body);font-size:14px;font-weight:700;margin-bottom:11px}
+.choose .yes h5{color:var(--acc-2)}.choose .no h5{color:var(--acc)}
+.choose li{font-size:13.5px;color:var(--ink-soft);padding:6px 0 6px 22px;position:relative;list-style:none}
+.choose .yes li::before{content:"✓";position:absolute;left:0;color:var(--acc-2)}
+.choose .no li::before{content:"✕";position:absolute;left:0;color:var(--acc)}
+
+.code-wrap{background:var(--bg-soft);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.code-top{display:flex;align-items:center;gap:8px;padding:11px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
+.code-top .dots{display:flex;gap:6px}.code-top .dots i{width:11px;height:11px;border-radius:50%}
+.code-top .fname{font-family:var(--mono);font-size:12px;color:var(--ink-dim);margin-left:6px}
+.code-top .lang{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--acc-5);border:1px solid var(--line);padding:2px 9px;border-radius:20px}
+pre{margin:0;padding:18px 20px;overflow-x:auto;font-family:var(--mono);font-size:12.7px;line-height:1.7;color:var(--ink-soft)}
+pre::-webkit-scrollbar{height:8px}pre::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
+.k{color:var(--acc-4)}.s{color:var(--acc-2)}.c{color:#5a6b7d;font-style:italic}.f{color:var(--acc-3)}.n{color:var(--acc-5)}.t{color:var(--acc)}
+
+.callout{background:linear-gradient(135deg,rgba(255,120,73,.07),rgba(91,156,255,.04));border:1px solid var(--line);border-left:3px solid var(--acc-5);border-radius:12px;padding:18px 22px;display:flex;gap:14px;margin-top:18px}
+.callout .ico{font-family:var(--disp);font-weight:800;color:var(--acc-5);font-size:15px;flex:0 0 auto}
+.callout p{font-size:14px;color:var(--ink-soft);margin:0}
+
+/* аналогия «на пальцах» */
+.analogy{background:linear-gradient(135deg,rgba(199,146,234,.10),rgba(91,156,255,.04));border:1px solid var(--line);border-left:3px solid var(--acc-4);border-radius:14px;padding:20px 24px;margin-top:4px}
+.analogy .tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc-4);margin-bottom:12px}
+.analogy .tag::before{content:"💡"}
+.analogy p{font-size:15.5px;color:var(--ink-soft);margin:0;max-width:760px;line-height:1.7}
+.analogy p strong{color:var(--ink)}
+
+/* реальные системы */
+.realworld{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:13px}
+.rw-card{background:linear-gradient(160deg,var(--panel),var(--bg-soft));border:1px solid var(--line);border-radius:14px;padding:16px 18px;border-top:3px solid var(--acc-3)}
+.rw-card .who{font-family:var(--disp);font-size:14.5px;font-weight:600;color:var(--ink);margin-bottom:6px}
+.rw-card .what{font-size:13px;color:var(--ink-dim);line-height:1.55}
+
+.footer-nav{display:flex;justify-content:space-between;gap:14px;margin-top:48px;padding-top:26px;border-top:1px solid var(--line)}
+.fnav-btn{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px 20px;cursor:pointer;transition:.2s;color:var(--ink);text-align:left}
+.fnav-btn:hover{border-color:var(--acc);background:var(--panel-2)}
+.fnav-btn.next{text-align:right}
+.fnav-btn small{font-family:var(--mono);font-size:10px;color:var(--ink-dim);letter-spacing:1px}
+.fnav-btn span{display:block;font-family:var(--disp);font-size:14px;font-weight:600;margin-top:4px}
+
+/* compare page */
+.cmp-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+.cmp{width:100%;border-collapse:collapse;font-size:13px;min-width:680px}
+.cmp th,.cmp td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+.cmp th{background:var(--panel);font-family:var(--mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--acc-2);position:sticky;top:0}
+.cmp tr:last-child td{border-bottom:none}
+.cmp td:first-child{font-weight:600;color:var(--ink);font-family:var(--body)}
+.cmp tr:hover td{background:rgba(255,255,255,.015)}
+.lvl{display:inline-block;padding:2px 9px;border-radius:20px;font-family:var(--mono);font-size:10px;white-space:nowrap}
+.lvl.h{background:rgba(61,220,151,.14);color:var(--acc-2)}
+.lvl.m{background:rgba(255,209,102,.14);color:var(--acc-5)}
+.lvl.l{background:rgba(255,120,73,.14);color:var(--acc)}
+
+.mobile-toggle{display:none}
+@media(max-width:900px){
+  .sidebar{position:fixed;left:-310px;z-index:50;transition:.3s;box-shadow:0 0 40px rgba(0,0,0,.5)}
+  .sidebar.open{left:0}
+  .mobile-toggle{display:grid;place-items:center;width:42px;height:42px;border-radius:10px;background:var(--panel);border:1px solid var(--line);color:var(--ink);cursor:pointer;font-size:18px;flex:0 0 auto}
+  .content{padding:28px 18px 70px}.topbar{padding:11px 16px}
+  .bar{width:80px}
+}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><div class="mark">AΣ</div>
+      <div><h1>Атлас архитектур</h1><small>SOFTWARE DESIGN · УЧЕБНИК</small></div></div>
+    <input class="nav-search" id="search" placeholder="Поиск по архитектурам…">
+    <nav id="nav"></nav>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:14px;min-width:0">
+        <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+        <div class="crumb" id="crumb"></div>
+      </div>
+      <div class="progress"><span class="pill" id="ptext"></span><div class="bar"><i id="pbar"></i></div></div>
+    </div>
+    <div class="content" id="content"></div>
+  </main>
+</div></div>
+
+<script>
+/* ====== SVG-ДИАГРАММЫ ======
+   Все используют CSS-переменные через атрибуты fill/stroke с конкретными цветами,
+   совпадающими с палитрой темы. viewBox адаптивный. */
+const ARROW = (id,c)=>`<marker id="${id}" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="${c}"/></marker>`;
+
+const DIAG = {
+
+/* ---------- МОНОЛИТ ---------- */
+monolith:`<svg viewBox="0 0 760 360"><defs>${ARROW('m_a','#8a98ab')}</defs>
+<rect x="60" y="40" width="640" height="280" rx="18" fill="#0f1620" stroke="#5b9cff" stroke-width="2"/>
+<text x="80" y="70" fill="#5b9cff" font-family="Space Mono" font-size="12">single deployable · один процесс · одна кодовая база</text>
+${[['UI / Контроллеры','#5b9cff',90],['Бизнес-логика','#3ddc97',150],['Доступ к данным','#ffd166',210]].map(([t,c,y])=>`
+<rect x="100" y="${y}" width="560" height="46" rx="10" fill="#16202e" stroke="${c}" stroke-width="1.3"/>
+<rect x="100" y="${y}" width="5" height="46" rx="2" fill="${c}"/>
+<text x="124" y="${y+28}" fill="#e9eef5" font-family="Manrope" font-size="14" font-weight="600">${t}</text>`).join('')}
+<rect x="280" y="270" width="200" height="36" rx="18" fill="#0a0e14" stroke="#ff7849" stroke-dasharray="4 3"/>
+<text x="380" y="293" text-anchor="middle" fill="#ff7849" font-family="Space Mono" font-size="11">одна общая БД</text>
+<path d="M380 256 L380 270" stroke="#8a98ab" stroke-width="1.3" marker-end="url(#m_a)"/></svg>`,
+
+/* ---------- МНОГОСЛОЙНАЯ ---------- */
+layered:`<svg viewBox="0 0 760 380"><defs>${ARROW('l_a','#8a98ab')}</defs>
+${['Presentation · UI и API','Application · сценарии (use cases)','Domain · бизнес-правила','Infrastructure · БД, файлы, сеть'].map((t,i)=>{
+  const col=['#5b9cff','#3ddc97','#ff7849','#ffd166'][i];const y=30+i*82;
+  return `<rect x="110" y="${y}" width="540" height="62" rx="12" fill="#16202e" stroke="${col}" stroke-width="1.5"/>
+  <rect x="110" y="${y}" width="6" height="62" rx="3" fill="${col}"/>
+  <text x="140" y="${y+28}" fill="#e9eef5" font-family="Manrope" font-size="15" font-weight="600">${t.split('·')[0]}</text>
+  <text x="140" y="${y+48}" fill="#8a98ab" font-family="Space Mono" font-size="11">слой ${i+1} ·${t.split('·')[1]}</text>
+  ${i<3?`<path d="M380 ${y+62} L380 ${y+82}" stroke="#8a98ab" stroke-width="1.4" marker-end="url(#l_a)"/><text x="396" y="${y+78}" fill="#8a98ab" font-family="Space Mono" font-size="10">зависит от ↓</text>`:''}`;
+}).join('')}</svg>`,
+
+/* ---------- МИКРОЯДРО / ПЛАГИНЫ ---------- */
+microkernel:`<svg viewBox="0 0 760 360"><defs>${ARROW('mk_a','#3ddc97')}</defs>
+<circle cx="380" cy="180" r="78" fill="#16202e" stroke="#3ddc97" stroke-width="2"/>
+<text x="380" y="172" text-anchor="middle" fill="#3ddc97" font-family="Unbounded" font-size="14" font-weight="600">Ядро</text>
+<text x="380" y="194" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="10">core system</text>
+${[[380,40,'Плагин A'],[610,120,'Плагин B'],[610,240,'Плагин C'],[380,320,'Плагин D'],[150,240,'Плагин E'],[150,120,'Плагин F']].map(([x,y,t])=>`
+<rect x="${x-58}" y="${y-22}" width="116" height="44" rx="10" fill="#121b27" stroke="#c792ea" stroke-width="1.3"/>
+<text x="${x}" y="${y+4}" text-anchor="middle" fill="#c792ea" font-family="Manrope" font-size="12">${t}</text>
+<line x1="${x>380?x-58:x<380?x+58:x}" y1="${y>180?y-22:y<180?y+22:y}" x2="${380+(x-380)*0.32}" y2="${180+(y-180)*0.32}" stroke="#3ddc97" stroke-width="1.3" stroke-dasharray="4 3"/>`).join('')}
+<text x="380" y="348" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="11">плагины подключаются к ядру через единый интерфейс расширения</text></svg>`,
+
+/* ---------- МИКРОСЕРВИСЫ ---------- */
+micro:`<svg viewBox="0 0 760 400"><defs>${ARROW('mc_a','#5b9cff')}${ARROW('mc_b','#c792ea')}</defs>
+<rect x="300" y="14" width="160" height="48" rx="12" fill="#16202e" stroke="#ffd166" stroke-width="1.5"/>
+<text x="380" y="43" text-anchor="middle" fill="#ffd166" font-family="Space Mono" font-size="13">API Gateway</text>
+${[['Auth','#5b9cff',70,'8001'],['Orders','#3ddc97',300,'8002'],['Payments','#ff7849',530,'8003']].map(([t,c,x,p])=>`
+<path d="M380 62 Q${+x+70} 100 ${+x+70} 150" stroke="#5b9cff" stroke-width="1.2" fill="none" marker-end="url(#mc_a)" opacity=".55"/>
+<rect x="${x}" y="150" width="140" height="58" rx="12" fill="#121b27" stroke="${c}" stroke-width="1.5"/>
+<text x="${+x+70}" y="177" text-anchor="middle" fill="#e9eef5" font-family="Manrope" font-size="14" font-weight="600">${t}</text>
+<text x="${+x+70}" y="196" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="10">service :${p}</text>
+<rect x="${+x+25}" y="248" width="90" height="42" rx="10" fill="#0f1620" stroke="${c}" stroke-dasharray="4 3"/>
+<text x="${+x+70}" y="274" text-anchor="middle" fill="${c}" font-family="Space Mono" font-size="11">own DB</text>
+<path d="M${+x+70} 208 L${+x+70} 248" stroke="${c}" stroke-width="1.2"/>`).join('')}
+<rect x="220" y="330" width="320" height="36" rx="18" fill="#0f1620" stroke="#c792ea" stroke-width="1.2" stroke-dasharray="5 4"/>
+<text x="380" y="353" text-anchor="middle" fill="#c792ea" font-family="Space Mono" font-size="11">шина сообщений / поток событий</text>
+${[140,380,600].map(x=>`<path d="M${x} 290 Q${x} 320 ${x<380?300:x>380?460:380} 330" stroke="#c792ea" stroke-width="1" fill="none" opacity=".4"/>`).join('')}</svg>`,
+
+/* ---------- SOA / BROKER ---------- */
+soa:`<svg viewBox="0 0 760 340"><defs>${ARROW('s_a','#ffd166')}</defs>
+<rect x="160" y="150" width="440" height="44" rx="22" fill="#16202e" stroke="#ffd166" stroke-width="2"/>
+<text x="380" y="178" text-anchor="middle" fill="#ffd166" font-family="Unbounded" font-size="13" font-weight="600">Enterprise Service Bus (ESB)</text>
+${[['Биллинг','#5b9cff',90],['Склад','#3ddc97',290],['Доставка','#ff7849',490]].map(([t,c,x])=>`
+<rect x="${x}" y="40" width="120" height="50" rx="11" fill="#121b27" stroke="${c}" stroke-width="1.4"/>
+<text x="${+x+60}" y="70" text-anchor="middle" fill="${c}" font-family="Manrope" font-size="13">${t}</text>
+<path d="M${+x+60} 90 L${+x+60} 150" stroke="#8a98ab" stroke-width="1.3" marker-end="url(#s_a)"/>`).join('')}
+${[['CRM','#c792ea',190],['Аналитика','#3ddc97',440]].map(([t,c,x])=>`
+<rect x="${x}" y="252" width="130" height="50" rx="11" fill="#121b27" stroke="${c}" stroke-width="1.4"/>
+<text x="${+x+65}" y="282" text-anchor="middle" fill="${c}" font-family="Manrope" font-size="13">${t}</text>
+<path d="M${+x+65} 252 L${+x+65} 194" stroke="#8a98ab" stroke-width="1.3" marker-end="url(#s_a)"/>`).join('')}
+<text x="380" y="328" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="11">шина маршрутизирует, преобразует и оркестрирует вызовы между сервисами</text></svg>`,
+
+/* ---------- СОБЫТИЙНАЯ ---------- */
+event:`<svg viewBox="0 0 760 300"><defs>${ARROW('e_a','#c792ea')}</defs>
+<rect x="30" y="118" width="130" height="60" rx="12" fill="#16202e" stroke="#5b9cff" stroke-width="1.5"/>
+<text x="95" y="153" text-anchor="middle" fill="#5b9cff" font-family="Manrope" font-size="13" font-weight="600">Producer</text>
+<rect x="300" y="36" width="160" height="226" rx="14" fill="#0f1620" stroke="#c792ea" stroke-width="1.8"/>
+<text x="380" y="62" text-anchor="middle" fill="#c792ea" font-family="Unbounded" font-size="13" font-weight="600">Event Broker</text>
+${[0,1,2,3].map(i=>`<rect x="320" y="${82+i*40}" width="120" height="28" rx="6" fill="#16202e" stroke="#c792ea" stroke-width=".7"/><text x="380" y="${100+i*40}" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="10">событие #${i+1}</text>`).join('')}
+${[['Consumer A','#3ddc97',58],['Consumer B','#ff7849',150]].map(([t,c,y])=>`
+<rect x="600" y="${y}" width="130" height="60" rx="12" fill="#16202e" stroke="${c}" stroke-width="1.5"/>
+<text x="665" y="${+y+35}" text-anchor="middle" fill="${c}" font-family="Manrope" font-size="13" font-weight="600">${t}</text>`).join('')}
+<path d="M160 148 L300 148" stroke="#c792ea" stroke-width="1.5" marker-end="url(#e_a)"/>
+<text x="200" y="138" fill="#8a98ab" font-family="Space Mono" font-size="10">publish</text>
+<path d="M460 120 Q530 88 600 88" stroke="#c792ea" stroke-width="1.4" fill="none" marker-end="url(#e_a)"/>
+<path d="M460 170 Q530 180 600 180" stroke="#c792ea" stroke-width="1.4" fill="none" marker-end="url(#e_a)"/>
+<text x="505" y="78" fill="#8a98ab" font-family="Space Mono" font-size="10">subscribe</text></svg>`,
+
+/* ---------- PIPELINE ---------- */
+pipeline:`<svg viewBox="0 0 760 220"><defs>${ARROW('p_a','#3ddc97')}</defs>
+${['Вход','Фильтр 1','Фильтр 2','Фильтр 3','Выход'].map((t,i)=>{
+  const x=30+i*150;const c=i===0?'#5b9cff':i===4?'#ffd166':'#3ddc97';
+  return `<rect x="${x}" y="80" width="118" height="56" rx="12" fill="#16202e" stroke="${c}" stroke-width="1.5"/>
+  <text x="${x+59}" y="113" text-anchor="middle" fill="${c}" font-family="Manrope" font-size="13" font-weight="600">${t}</text>
+  ${i<4?`<path d="M${x+118} 108 L${x+150} 108" stroke="#3ddc97" stroke-width="1.6" marker-end="url(#p_a)"/>`:''}`;
+}).join('')}
+<text x="380" y="180" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="11">данные текут через цепочку «фильтров», каждый делает одно преобразование</text></svg>`,
+
+/* ---------- MVC ---------- */
+mvc:`<svg viewBox="0 0 760 320"><defs>${ARROW('v_a','#8a98ab')}</defs>
+<rect x="60" y="120" width="170" height="80" rx="14" fill="#16202e" stroke="#ff7849" stroke-width="1.5"/>
+<text x="145" y="155" text-anchor="middle" fill="#ff7849" font-family="Unbounded" font-size="16" font-weight="600">View</text>
+<text x="145" y="178" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="10">шаблоны / UI</text>
+<rect x="300" y="40" width="170" height="80" rx="14" fill="#16202e" stroke="#5b9cff" stroke-width="1.5"/>
+<text x="385" y="75" text-anchor="middle" fill="#5b9cff" font-family="Unbounded" font-size="16" font-weight="600">Controller</text>
+<text x="385" y="98" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="10">обработка ввода</text>
+<rect x="540" y="120" width="170" height="80" rx="14" fill="#16202e" stroke="#3ddc97" stroke-width="1.5"/>
+<text x="625" y="155" text-anchor="middle" fill="#3ddc97" font-family="Unbounded" font-size="16" font-weight="600">Model</text>
+<text x="625" y="178" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="10">данные + логика</text>
+<path d="M215 120 Q300 72 305 78" stroke="#8a98ab" fill="none" stroke-width="1.4" marker-end="url(#v_a)"/>
+<text x="232" y="96" fill="#8a98ab" font-family="Space Mono" font-size="10">1 · событие</text>
+<path d="M470 92 Q540 130 545 136" stroke="#8a98ab" fill="none" stroke-width="1.4" marker-end="url(#v_a)"/>
+<text x="486" y="108" fill="#8a98ab" font-family="Space Mono" font-size="10">2 · обновить</text>
+<path d="M540 178 Q360 246 232 182" stroke="#8a98ab" fill="none" stroke-width="1.4" marker-end="url(#v_a)"/>
+<text x="360" y="240" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="10">3 · отрисовать данные</text></svg>`,
+
+/* ---------- ГЕКСАГОНАЛЬНАЯ ---------- */
+hex:`<svg viewBox="0 0 760 380"><defs>${ARROW('h_a','#3ddc97')}</defs>
+<polygon points="380,84 472,137 472,243 380,296 288,243 288,137" fill="#16202e" stroke="#3ddc97" stroke-width="2"/>
+<text x="380" y="182" text-anchor="middle" fill="#3ddc97" font-family="Unbounded" font-size="15" font-weight="600">Domain</text>
+<text x="380" y="205" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="10">чистое ядро</text>
+${[['REST API','#5b9cff',105,118],['CLI / UI','#5b9cff',105,248],['База данных','#ff7849',555,118],['SMTP / очередь','#ff7849',555,248]].map(([t,c,x,y])=>`
+<rect x="${x}" y="${y}" width="130" height="52" rx="10" fill="#121b27" stroke="${c}" stroke-width="1.4"/>
+<text x="${+x+65}" y="${+y+31}" text-anchor="middle" fill="#e9eef5" font-family="Manrope" font-size="13">${t}</text>`).join('')}
+<path d="M235 144 L288 162" stroke="#3ddc97" stroke-width="1.4" marker-end="url(#h_a)"/>
+<path d="M235 274 L288 240" stroke="#3ddc97" stroke-width="1.4" marker-end="url(#h_a)"/>
+<path d="M472 162 L555 144" stroke="#3ddc97" stroke-width="1.4" marker-end="url(#h_a)"/>
+<path d="M472 240 L555 274" stroke="#3ddc97" stroke-width="1.4" marker-end="url(#h_a)"/>
+<text x="170" y="100" fill="#5b9cff" font-family="Space Mono" font-size="11">входящие адаптеры (driving)</text>
+<text x="555" y="100" fill="#ff7849" font-family="Space Mono" font-size="11">исходящие (driven)</text>
+<text x="380" y="350" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="10">порты — это интерфейсы ядра; адаптеры — их сменные реализации</text></svg>`,
+
+/* ---------- ONION / CLEAN кольца ---------- */
+onion:`<svg viewBox="0 0 760 380">
+${[[170,'#22303f','Frameworks · Drivers'],[135,'#5b9cff','Interface Adapters'],[98,'#3ddc97','Use Cases'],[58,'#ff7849','Entities']].map(([r,c,t],i)=>`
+<circle cx="380" cy="180" r="${r}" fill="${i===3?'#16202e':'none'}" stroke="${c}" stroke-width="${i===0?2:1.5}"/>
+<text x="380" y="${180-r+20}" text-anchor="middle" fill="${c}" font-family="Space Mono" font-size="11">${t}</text>`).join('')}
+<text x="380" y="186" text-anchor="middle" fill="#ff7849" font-family="Unbounded" font-size="13" font-weight="600">Core</text>
+<defs><marker id="o_a" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#ffd166"/></marker></defs>
+<path d="M610 180 L560 180" stroke="#ffd166" stroke-width="1.6" marker-end="url(#o_a)"/>
+<text x="585" y="168" text-anchor="middle" fill="#ffd166" font-family="Space Mono" font-size="11">зависимости</text>
+<text x="585" y="200" text-anchor="middle" fill="#ffd166" font-family="Space Mono" font-size="11">только внутрь →</text></svg>`,
+
+/* ---------- CQRS ---------- */
+cqrs:`<svg viewBox="0 0 760 320"><defs>${ARROW('q_a','#8a98ab')}${ARROW('q_b','#c792ea')}</defs>
+<rect x="310" y="18" width="140" height="46" rx="12" fill="#16202e" stroke="#ffd166" stroke-width="1.5"/>
+<text x="380" y="46" text-anchor="middle" fill="#ffd166" font-family="Manrope" font-size="13" font-weight="600">Клиент</text>
+<rect x="80" y="118" width="200" height="60" rx="12" fill="#16202e" stroke="#ff7849" stroke-width="1.5"/>
+<text x="180" y="145" text-anchor="middle" fill="#ff7849" font-family="Unbounded" font-size="14">Command</text>
+<text x="180" y="166" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="10">изменение состояния</text>
+<rect x="480" y="118" width="200" height="60" rx="12" fill="#16202e" stroke="#3ddc97" stroke-width="1.5"/>
+<text x="580" y="145" text-anchor="middle" fill="#3ddc97" font-family="Unbounded" font-size="14">Query</text>
+<text x="580" y="166" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="10">только чтение</text>
+<rect x="100" y="238" width="160" height="50" rx="10" fill="#0f1620" stroke="#ff7849" stroke-dasharray="4 3"/>
+<text x="180" y="268" text-anchor="middle" fill="#ff7849" font-family="Space Mono" font-size="11">Write Model</text>
+<rect x="500" y="238" width="160" height="50" rx="10" fill="#0f1620" stroke="#3ddc97" stroke-dasharray="4 3"/>
+<text x="580" y="268" text-anchor="middle" fill="#3ddc97" font-family="Space Mono" font-size="11">Read Model</text>
+<path d="M340 58 Q200 88 180 118" stroke="#8a98ab" fill="none" stroke-width="1.4" marker-end="url(#q_a)"/>
+<path d="M420 58 Q560 88 580 118" stroke="#8a98ab" fill="none" stroke-width="1.4" marker-end="url(#q_a)"/>
+<path d="M180 178 L180 238" stroke="#8a98ab" stroke-width="1.4" marker-end="url(#q_a)"/>
+<path d="M580 178 L580 238" stroke="#8a98ab" stroke-width="1.4" marker-end="url(#q_a)"/>
+<path d="M260 263 Q380 300 500 263" stroke="#c792ea" fill="none" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#q_b)"/>
+<text x="380" y="300" text-anchor="middle" fill="#c792ea" font-family="Space Mono" font-size="10">синхронизация через события</text></svg>`,
+
+/* ---------- SERVERLESS ---------- */
+serverless:`<svg viewBox="0 0 760 300"><defs>${ARROW('sl_a','#ffd166')}${ARROW('sl_b','#3ddc97')}</defs>
+<rect x="30" y="118" width="120" height="56" rx="12" fill="#16202e" stroke="#5b9cff" stroke-width="1.5"/>
+<text x="90" y="151" text-anchor="middle" fill="#5b9cff" font-family="Manrope" font-size="13" font-weight="600">Событие</text>
+<rect x="230" y="118" width="120" height="56" rx="12" fill="#16202e" stroke="#ffd166" stroke-width="1.5"/>
+<text x="290" y="144" text-anchor="middle" fill="#ffd166" font-family="Manrope" font-size="12" font-weight="600">Trigger</text>
+<text x="290" y="162" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="9">HTTP / queue</text>
+${[0,1,2].map(i=>`<rect x="430" y="${66+i*70}" width="140" height="50" rx="11" fill="#121b27" stroke="#ff7849" stroke-width="1.4"/><text x="500" y="${96+i*70}" text-anchor="middle" fill="#ff7849" font-family="Space Mono" font-size="11">λ function ${i+1}</text>`).join('')}
+<rect x="640" y="118" width="90" height="56" rx="12" fill="#0f1620" stroke="#3ddc97" stroke-dasharray="4 3"/>
+<text x="685" y="151" text-anchor="middle" fill="#3ddc97" font-family="Space Mono" font-size="11">DB / API</text>
+<path d="M150 146 L230 146" stroke="#ffd166" stroke-width="1.4" marker-end="url(#sl_a)"/>
+<path d="M350 146 Q390 93 430 93" stroke="#ffd166" stroke-width="1.2" fill="none" marker-end="url(#sl_a)"/>
+<path d="M350 146 L430 146" stroke="#ffd166" stroke-width="1.2" marker-end="url(#sl_a)"/>
+<path d="M350 146 Q390 199 430 199" stroke="#ffd166" stroke-width="1.2" fill="none" marker-end="url(#sl_a)"/>
+<path d="M570 146 L640 146" stroke="#3ddc97" stroke-width="1.2" marker-end="url(#sl_b)"/></svg>`,
+
+/* ---------- MVP (mobile) ---------- */
+mvp:`<svg viewBox="0 0 760 280"><defs>${ARROW('mp_a','#8a98ab')}</defs>
+<rect x="60" y="100" width="170" height="76" rx="14" fill="#16202e" stroke="#ff7849" stroke-width="1.5"/>
+<text x="145" y="132" text-anchor="middle" fill="#ff7849" font-family="Unbounded" font-size="15" font-weight="600">View</text>
+<text x="145" y="154" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="10">Activity / Fragment</text>
+<rect x="295" y="100" width="170" height="76" rx="14" fill="#16202e" stroke="#5b9cff" stroke-width="1.5"/>
+<text x="380" y="132" text-anchor="middle" fill="#5b9cff" font-family="Unbounded" font-size="15" font-weight="600">Presenter</text>
+<text x="380" y="154" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="10">логика отображения</text>
+<rect x="530" y="100" width="170" height="76" rx="14" fill="#16202e" stroke="#3ddc97" stroke-width="1.5"/>
+<text x="615" y="132" text-anchor="middle" fill="#3ddc97" font-family="Unbounded" font-size="15" font-weight="600">Model</text>
+<text x="615" y="154" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="10">данные / репозиторий</text>
+<path d="M230 126 L295 126" stroke="#8a98ab" stroke-width="1.4" marker-end="url(#mp_a)"/>
+<path d="M295 150 L230 150" stroke="#8a98ab" stroke-width="1.4" marker-end="url(#mp_a)"/>
+<text x="262" y="118" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="9">вызов</text>
+<text x="262" y="170" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="9">обновить UI</text>
+<path d="M465 126 L530 126" stroke="#8a98ab" stroke-width="1.4" marker-end="url(#mp_a)"/>
+<path d="M530 150 L465 150" stroke="#8a98ab" stroke-width="1.4" marker-end="url(#mp_a)"/>
+<text x="380" y="230" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="11">View и Presenter связаны через интерфейс (контракт) — двусторонне, но явно</text></svg>`,
+
+/* ---------- MVVM (mobile) ---------- */
+mvvm:`<svg viewBox="0 0 760 290"><defs>${ARROW('vm_a','#8a98ab')}${ARROW('vm_b','#3ddc97')}</defs>
+<rect x="60" y="100" width="170" height="76" rx="14" fill="#16202e" stroke="#ff7849" stroke-width="1.5"/>
+<text x="145" y="132" text-anchor="middle" fill="#ff7849" font-family="Unbounded" font-size="15" font-weight="600">View</text>
+<text x="145" y="154" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="10">XML / Compose / SwiftUI</text>
+<rect x="295" y="100" width="170" height="76" rx="14" fill="#16202e" stroke="#5b9cff" stroke-width="1.5"/>
+<text x="380" y="128" text-anchor="middle" fill="#5b9cff" font-family="Unbounded" font-size="14" font-weight="600">ViewModel</text>
+<text x="380" y="150" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="10">состояние + команды</text>
+<rect x="530" y="100" width="170" height="76" rx="14" fill="#16202e" stroke="#3ddc97" stroke-width="1.5"/>
+<text x="615" y="132" text-anchor="middle" fill="#3ddc97" font-family="Unbounded" font-size="15" font-weight="600">Model</text>
+<text x="615" y="154" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="10">репозиторий / данные</text>
+<path d="M230 122 L295 122" stroke="#8a98ab" stroke-width="1.4" marker-end="url(#vm_a)"/>
+<text x="262" y="114" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="9">события</text>
+<path d="M295 154 Q262 154 230 154" stroke="#3ddc97" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#vm_b)"/>
+<text x="262" y="174" text-anchor="middle" fill="#3ddc97" font-family="Space Mono" font-size="9">data binding ←</text>
+<path d="M465 138 L530 138" stroke="#8a98ab" stroke-width="1.4" marker-end="url(#vm_a)"/>
+<text x="380" y="240" text-anchor="middle" fill="#3ddc97" font-family="Space Mono" font-size="11">ключевое отличие: View подписана на состояние ViewModel и обновляется сама</text></svg>`,
+
+/* ---------- MVI (mobile) ---------- */
+mvi:`<svg viewBox="0 0 760 300"><defs>${ARROW('mi_a','#c792ea')}</defs>
+<rect x="300" y="20" width="160" height="50" rx="12" fill="#16202e" stroke="#ff7849" stroke-width="1.5"/>
+<text x="380" y="50" text-anchor="middle" fill="#ff7849" font-family="Unbounded" font-size="14" font-weight="600">View</text>
+<rect x="560" y="125" width="160" height="50" rx="12" fill="#16202e" stroke="#5b9cff" stroke-width="1.5"/>
+<text x="640" y="148" text-anchor="middle" fill="#5b9cff" font-family="Unbounded" font-size="13" font-weight="600">Intent</text>
+<text x="640" y="165" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="9">намерение</text>
+<rect x="300" y="230" width="160" height="50" rx="12" fill="#16202e" stroke="#3ddc97" stroke-width="1.5"/>
+<text x="380" y="253" text-anchor="middle" fill="#3ddc97" font-family="Unbounded" font-size="13" font-weight="600">Model</text>
+<text x="380" y="270" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="9">reducer → new State</text>
+<rect x="40" y="125" width="160" height="50" rx="12" fill="#16202e" stroke="#ffd166" stroke-width="1.5"/>
+<text x="120" y="148" text-anchor="middle" fill="#ffd166" font-family="Unbounded" font-size="13" font-weight="600">State</text>
+<text x="120" y="165" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="9">единый immutable</text>
+<path d="M460 45 Q640 45 640 125" stroke="#c792ea" stroke-width="1.5" fill="none" marker-end="url(#mi_a)"/>
+<path d="M640 175 Q640 255 460 255" stroke="#c792ea" stroke-width="1.5" fill="none" marker-end="url(#mi_a)"/>
+<path d="M300 255 Q120 255 120 175" stroke="#c792ea" stroke-width="1.5" fill="none" marker-end="url(#mi_a)"/>
+<path d="M120 125 Q120 45 300 45" stroke="#c792ea" stroke-width="1.5" fill="none" marker-end="url(#mi_a)"/>
+<text x="560" y="100" fill="#8a98ab" font-family="Space Mono" font-size="10">user action</text>
+<text x="470" y="285" fill="#8a98ab" font-family="Space Mono" font-size="10">обработка</text>
+<text x="150" y="285" fill="#8a98ab" font-family="Space Mono" font-size="10">новое состояние</text>
+<text x="150" y="100" fill="#8a98ab" font-family="Space Mono" font-size="10">render</text>
+<text x="380" y="160" text-anchor="middle" fill="#c792ea" font-family="Space Mono" font-size="11">однонаправленный цикл данных</text></svg>`,
+
+/* ---------- CLEAN (mobile layers) ---------- */
+cleanmob:`<svg viewBox="0 0 760 340"><defs>${ARROW('cm_a','#ffd166')}</defs>
+${[['Presentation','#ff7849','UI · ViewModel / Presenter',40],['Domain','#3ddc97','UseCases · Entities (чистый Kotlin/Swift)',130],['Data','#5b9cff','Repository · API · DB · кэш',220]].map(([t,c,d,y])=>`
+<rect x="120" y="${y}" width="520" height="70" rx="14" fill="#16202e" stroke="${c}" stroke-width="1.6"/>
+<rect x="120" y="${y}" width="6" height="70" rx="3" fill="${c}"/>
+<text x="148" y="${+y+30}" fill="${c}" font-family="Unbounded" font-size="15" font-weight="600">${t}</text>
+<text x="148" y="${+y+52}" fill="#8a98ab" font-family="Space Mono" font-size="11">${d}</text>`).join('')}
+<path d="M380 110 L380 130" stroke="#ffd166" stroke-width="1.4" marker-end="url(#cm_a)"/>
+<path d="M380 290 L380 200" stroke="#ffd166" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#cm_a)"/>
+<text x="400" y="126" fill="#8a98ab" font-family="Space Mono" font-size="10">зависит ↓</text>
+<text x="400" y="250" fill="#ffd166" font-family="Space Mono" font-size="10">Data реализует интерфейсы Domain (инверсия)</text>
+<text x="380" y="325" text-anchor="middle" fill="#8a98ab" font-family="Space Mono" font-size="11">Domain в центре и ни от кого не зависит — его легко тестировать и переносить</text></svg>`
+
+};
+
+/* ============================================================
+   КОНТЕНТ. Каждый объект — одна архитектура.
+   Поля:
+   id, cat, cc(цвет), name, tagline,
+   sections: [{h, p:[абзацы]}]  — основной текст
+   diag, dcap  — диаграмма и подпись
+   good[], bad[]
+   when[]  — "выбирай, если"
+   avoid[] — "не бери, если"
+   code{lang,file,body}
+   note   — врезка-принцип
+   ============================================================ */
+
+const SERVER = [
+
+/* ===================== МОНОЛИТ ===================== */
+{id:'monolith',cat:'Системный уровень',cc:'#5b9cff',name:'Монолитная архитектура',
+ tagline:'Единое приложение, где весь код собирается и развёртывается как одно целое.',
+ sections:[
+  {h:'С чего всё начинается',p:[
+   'Монолит — это не «устаревшая ошибка», а естественная и часто правильная отправная точка. Когда вы создаёте новое приложение, у вас один репозиторий, одна сборка, один запускаемый процесс. Весь код — интерфейс, бизнес-правила, работа с базой — живёт вместе и вызывает друг друга обычными функциями внутри одного адресного пространства.',
+   'Исторически почти всё ПО было монолитным: так писались первые веб-приложения, настольные программы, корпоративные системы. Разделение на сервисы появилось позже, как ответ на боль больших команд и больших нагрузок — но эта боль возникает далеко не у всех и не сразу.']},
+  {h:'Какую проблему решает',p:[
+   'Монолит решает проблему скорости разработки на ранних этапах. Нет сетевых границ — значит, нет сериализации, повторных попыток, распределённых транзакций и сложного развёртывания. Вы вызываете метод и сразу получаете результат. Отладка идёт по обычному стеку вызовов, а не по логам пяти сервисов.',
+   'Это критично, когда требования ещё не устоялись. Пока вы не знаете точных границ между подсистемами, дробить приложение на сервисы преждевременно: вы зафиксируете границы, которые завтра окажутся неверными, и платить за их переделку придётся сетевыми вызовами.']},
+  {h:'Как это устроено',p:[
+   'Хороший монолит почти всегда внутренне разделён на слои или модули (см. многослойную архитектуру). Снаружи это один процесс, но внутри — аккуратные границы между UI, логикой и данными. Такой «модульный монолит» сохраняет простоту развёртывания, но избегает превращения в «большой ком грязи», где всё связано со всем.',
+   'Масштабируется монолит «горизонтально»: вы запускаете несколько одинаковых копий приложения за балансировщиком нагрузки. Это просто и работает до весьма серьёзных объёмов — Stack Overflow и ранний Shopify годами держали огромный трафик на монолитах.']}
+ ],
+ analogy:'Представь <strong>один большой ресторан</strong>, где кухня, зал, касса и склад находятся под одной крышей. Официант просто проходит на кухню и говорит заказ голосом — быстро и без бумажной волокиты. Пока ресторан маленький, это идеально. Но если народу станет очень много, тесно станет всем сразу: расширить только кухню, не трогая зал, уже не получится — придётся строить целиком второй такой же ресторан рядом.',
+ realworld:[{who:'Stack Overflow',what:'Гигантский сайт вопросов и ответов десятилетиями работал как один монолит на .NET и держал миллионы посетителей всего на нескольких серверах.'},{who:'Shopify (ранний)',what:'Платформа для интернет-магазинов начинала как один большой Rails-монолит и выросла до огромных масштабов, прежде чем что-то выносить отдельно.'},{who:'Basecamp',what:'Известный таск-менеджер сознательно остаётся монолитом — команда считает это сильной стороной, а не недостатком.'}],
+ diag:'monolith',dcap:'Все слои внутри одного развёртываемого процесса; масштабирование — копиями целого приложения',
+ good:['Простая разработка, сборка и развёртывание||Один проект — открыл, запустил, выложил. Не надо настраивать связь между десятком отдельных программ.','Лёгкая отладка по единому стеку вызовов||Ошибку видно насквозь: один список вызовов от кнопки до базы, как одна цепочка следов.','Нет сетевых задержек между частями||Части говорят напрямую внутри программы, а не «звонят» друг другу по сети — это мгновенно.','Транзакции работают «из коробки» в одной БД||«Или всё сохранилось, или ничего» — здесь это бесплатно, потому что база одна.','Минимальные требования к инфраструктуре||Хватает одного сервера. Не нужны сложные инструменты для управления роем сервисов.'],
+ bad:['С ростом кода замедляется сборка и онбординг||Чем больше «комната», тем дольше в ней убираться и тем труднее новичку понять, где что лежит.','Любое изменение требует пересборки всего||Поменял одну кнопку — пересобирай и перезапускай всё приложение целиком.','Сложно масштабировать отдельную «горячую» часть||Нельзя усилить только перегруженный кусок — приходится копировать всю программу целиком.','Один сбой может уронить всё приложение||Сломался один модуль — упал весь ресторан, а не только одна его стойка.','Команды мешают друг другу в одной кодовой базе||Все правят один и тот же код — как несколько поваров толкаются у одной плиты.'],
+ when:['Новый проект или MVP с неустоявшимися требованиями','Небольшая команда (до 10–15 человек)','Нагрузка, которую тянет несколько копий приложения','Важна скорость вывода функций, а не предельный масштаб'],
+ avoid:['Десятки команд должны деплоиться независимо','Разные части системы нужно масштабировать порознь','Требуется изоляция сбоев между подсистемами'],
+ code:{lang:'Python',file:'app.py',body:`<span class="c"># Один процесс: всё вызывается напрямую, без сети</span>
+<span class="k">from</span> flask <span class="k">import</span> Flask, request
+app = <span class="f">Flask</span>(__name__)
+
+<span class="c"># слой данных, логики и представления — в одном приложении</span>
+<span class="k">class</span> <span class="t">OrderRepo</span>:
+    <span class="k">def</span> <span class="f">save</span>(<span class="k">self</span>, order): db.<span class="f">insert</span>(order)
+
+<span class="k">class</span> <span class="t">OrderService</span>:
+    <span class="k">def</span> <span class="f">__init__</span>(<span class="k">self</span>): <span class="k">self</span>.repo = <span class="f">OrderRepo</span>()
+    <span class="k">def</span> <span class="f">create</span>(<span class="k">self</span>, items):
+        total = <span class="f">sum</span>(i[<span class="s">"price"</span>] <span class="k">for</span> i <span class="k">in</span> items)
+        <span class="k">return</span> <span class="k">self</span>.repo.<span class="f">save</span>({<span class="s">"items"</span>: items, <span class="s">"total"</span>: total})
+
+service = <span class="f">OrderService</span>()
+
+<span class="f">@app.route</span>(<span class="s">"/orders"</span>, methods=[<span class="s">"POST"</span>])
+<span class="k">def</span> <span class="f">create_order</span>():
+    <span class="c"># прямой вызов в памяти — никаких HTTP к "другому сервису"</span>
+    <span class="k">return</span> service.<span class="f">create</span>(request.json[<span class="s">"items"</span>])`},
+ note:'Правило здравого смысла: начинайте с монолита, выносите в сервисы только то, что доказанно болит. «Сначала микросервисы» — частая и дорогая ошибка.'},
+
+/* ===================== МНОГОСЛОЙНАЯ ===================== */
+{id:'layered',cat:'Системный уровень',cc:'#3ddc97',name:'Многослойная (Layered)',
+ tagline:'Код разделён на горизонтальные слои с зависимостями строго в одну сторону.',
+ sections:[
+  {h:'Откуда взялась',p:[
+   'Идея слоёв старше большинства современных языков: разделять систему по уровням ответственности предлагали ещё в проектировании операционных систем и сетевых протоколов (модель OSI — это семь слоёв). В прикладной разработке трёхслойная схема «представление — логика — данные» стала фактическим стандартом корпоративных приложений в 1990–2000-х.',
+   'Причина популярности проста: слои отражают то, как человек естественно думает о программе. «Что показываем», «что считаем», «где храним» — три разных вопроса, и удобно держать ответы на них в разных местах.']},
+  {h:'Проблема, которую закрывают слои',p:[
+   'Без слоёв SQL-запросы соседствуют с HTML, а бизнес-правила размазаны по обработчикам кнопок. Менять что-то страшно: правка вёрстки рискует задеть логику расчётов. Слои вводят дисциплину — каждый уровень знает только о соседе снизу и общается с ним через узкий набор вызовов.',
+   'Главное правило — правило зависимостей: верхний слой зависит от нижнего, но нижний ничего не знает о верхнем. База данных не должна «знать» о том, что над ней веб-страница. Это позволяет менять верхние слои, не трогая нижние.']},
+  {h:'Как это устроено',p:[
+   'Классически выделяют: слой представления (UI, контроллеры, API), слой приложения/сценариев (оркестрация действий), доменный слой (бизнес-правила) и слой инфраструктуры (БД, файлы, внешние сервисы). В простых системах слоёв три, в сложных — четыре и больше.',
+   'Слои бывают «закрытыми» (запрос обязан проходить через каждый по порядку) и «открытыми» (можно перепрыгивать). Закрытые строже и предсказуемее; открытые быстрее, но размывают границы. Чаще выбирают закрытые с редкими осознанными исключениями.',
+   'Опасность многослойности — «архитектура раковины»: запрос проходит сверху вниз, почти ничего не делая на промежуточных слоях, кроме переброса данных. Если слой не добавляет ценности, возможно, он лишний.']}
+ ],
+ analogy:'Это как <strong>здание с этажами</strong>: на верхнем — приёмная (общается с посетителями), ниже — отделы, которые принимают решения, в подвале — архив с документами. Посетитель не лезет сразу в подвал за бумагами — он обращается в приёмную, та спускает запрос ниже. Каждый этаж знает только про соседний снизу. Порядок строгий, всё предсказуемо.',
+ realworld:[{who:'Типичный сайт на Spring',what:'Почти любое корпоративное Java-приложение разложено на слои: контроллеры → сервисы → репозитории → база. Это стандарт де-факто.'},{who:'1С и ERP-системы',what:'Бухгалтерские и складские системы традиционно строятся послойно: интерфейс, бизнес-логика, доступ к данным.'},{who:'Django / ASP.NET MVC',what:'Веб-фреймворки прямо подталкивают раскладывать код по слоям представления, логики и данных.'}],
+ diag:'layered',dcap:'Запрос движется сверху вниз; стрелки показывают направление зависимостей',
+ good:['Интуитивная, низкий порог входа||Все понимают «этажи»: вверху экран, в середине логика, внизу данные. Новичок быстро ориентируется.','Чёткое разделение ответственности||Каждый слой занят одним делом и не лезет в чужое — как отделы в компании.','Слои тестируются и заменяются по отдельности||Можно проверить или заменить один этаж, не трогая остальные.','Стандарт, понятный большинству разработчиков||Это «общий язык»: придёт новый человек — сразу узнает структуру.'],
+ bad:['Сквозные изменения затрагивают все слои сразу||Добавил одно новое поле — и править приходится на каждом этаже сверху донизу.','Риск «архитектуры раковины» — слои без пользы||Иногда этаж просто перекидывает запрос ниже, ничего не делая — лишний посредник.','Производительность падает на лишних пробросах||Чем больше этажей проходит запрос «вхолостую», тем медленнее ответ.','Может выродиться в монолит без внутренних границ||Если границы между слоями не соблюдать, всё снова слипнется в один ком.'],
+ when:['Бизнес-приложения с понятным делением логики','Команды разного уровня — нужна предсказуемость','CRUD-системы, CRM, ERP, внутренние порталы','Нужен «стандарт по умолчанию» без экзотики'],
+ avoid:['Очень высокие требования к задержкам на каждый запрос','Логика по сути событийная или потоковая','Домен настолько прост, что слои лишь добавляют церемоний'],
+ code:{lang:'Python',file:'layers.py',body:`<span class="c"># Слой представления — только ввод/вывод</span>
+<span class="k">class</span> <span class="t">OrderController</span>:
+    <span class="k">def</span> <span class="f">__init__</span>(<span class="k">self</span>, service): <span class="k">self</span>.service = service
+    <span class="k">def</span> <span class="f">create</span>(<span class="k">self</span>, req):
+        <span class="k">return</span> <span class="k">self</span>.service.<span class="f">place_order</span>(req[<span class="s">"items"</span>])
+
+<span class="c"># Слой логики — правила и сценарии</span>
+<span class="k">class</span> <span class="t">OrderService</span>:
+    <span class="k">def</span> <span class="f">__init__</span>(<span class="k">self</span>, repo): <span class="k">self</span>.repo = repo
+    <span class="k">def</span> <span class="f">place_order</span>(<span class="k">self</span>, items):
+        <span class="k">if</span> <span class="k">not</span> items: <span class="k">raise</span> <span class="t">ValueError</span>(<span class="s">"Пустой заказ"</span>)
+        total = <span class="f">sum</span>(i[<span class="s">"price"</span>] <span class="k">for</span> i <span class="k">in</span> items)
+        <span class="k">return</span> <span class="k">self</span>.repo.<span class="f">save</span>({<span class="s">"items"</span>: items, <span class="s">"total"</span>: total})
+
+<span class="c"># Слой данных — знает только про хранилище</span>
+<span class="k">class</span> <span class="t">OrderRepository</span>:
+    <span class="k">def</span> <span class="f">save</span>(<span class="k">self</span>, order):
+        db.<span class="f">execute</span>(<span class="s">"INSERT INTO orders ..."</span>, order)
+        <span class="k">return</span> order
+
+<span class="c"># Сборка: верхний слой получает нижний, но не наоборот</span>
+ctrl = <span class="f">OrderController</span>(<span class="f">OrderService</span>(<span class="f">OrderRepository</span>()))`},
+ note:'Закрытые слои дисциплинируют, но не превращайте их в формальность: если слой только перекладывает данные дальше, он, скорее всего, лишний.'},
+
+/* ===================== МИКРОЯДРО / ПЛАГИНЫ ===================== */
+{id:'microkernel',cat:'Системный уровень',cc:'#c792ea',name:'Микроядро (плагинная)',
+ tagline:'Минимальное стабильное ядро плюс подключаемые модули-расширения.',
+ sections:[
+  {h:'Идея и истоки',p:[
+   'Микроядерная (она же плагинная) архитектура выросла из мира операционных систем и редакторов. Сначала минимальное ядро отвечает только за самое базовое, а вся прикладная функциональность добавляется плагинами. Так устроены браузеры с их расширениями, IDE вроде VS Code и Eclipse, графические редакторы с фильтрами.',
+   'Ключевая мысль: разделить то, что меняется редко (ядро), и то, что меняется часто и по-разному у разных пользователей (плагины).']},
+  {h:'Какую боль снимает',p:[
+   'Представьте продукт, где каждому клиенту нужны свои правила обработки документов. Зашивать всё в ядро — значит раздувать его и ломать при каждом новом требовании. Вместо этого ядро предоставляет точку расширения, а специфика клиента живёт в отдельном плагине, который можно добавить или убрать, не пересобирая ядро.',
+   'Это даёт расширяемость без хирургии в основном коде: третьи стороны (или другие команды) пишут плагины по контракту, не зная внутренностей ядра.']},
+  {h:'Как это устроено',p:[
+   'Есть два элемента: ядро (core) с базовой логикой и реестром расширений, и плагины, реализующие заранее объявленный интерфейс. Ядро не знает, какие конкретно плагины существуют; оно знает лишь контракт. При запуске или по требованию ядро обнаруживает плагины и вызывает их через этот контракт.',
+   'Связь обычно односторонняя: ядро вызывает плагины, плагины не лезут в кишки ядра. Хорошо спроектированный контракт расширения — главный актив такой системы; плохой контракт делает плагины хрупкими.']}
+ ],
+ analogy:'Думай про <strong>браузер с расширениями</strong> или <strong>смартфон</strong>: сам телефон умеет немного — звонить и показывать экран. А всё интересное добавляют приложения, которые ты ставишь сам. Ядро остаётся маленьким и стабильным, а возможности наращиваются плагинами, которые можно добавлять и убирать, не переделывая систему.',
+ realworld:[{who:'VS Code',what:'Редактор кода — это маленькое ядро плюс тысячи расширений из маркетплейса; почти весь функционал добавляется плагинами.'},{who:'Браузеры (Chrome, Firefox)',what:'Базовый браузер расширяется дополнениями — блокировщики рекламы, менеджеры паролей и т.д.'},{who:'Eclipse / IntelliJ',what:'Среды разработки построены на плагинной системе: поддержка языков и инструментов ставится модулями.'}],
+ diag:'microkernel',dcap:'Стабильное ядро в центре, расширения подключаются через единый интерфейс',
+ good:['Расширяемость без правок ядра||Новые возможности добавляешь плагином, как приложение на телефон — саму систему трогать не нужно.','Изоляция кастомной логики в плагинах||Особые «фишки» живут отдельно и не засоряют надёжное ядро.','Сторонние разработчики могут расширять продукт||Чужие люди делают дополнения, не имея доступа к «начинке» — как авторы расширений для браузера.','Плагины включаются/выключаются независимо||Не нужен плагин — отключил, и он не мешает; нужен — поставил обратно.'],
+ bad:['Дизайн контракта расширения сложен и важен||Надо заранее продумать «разъём», в который будут втыкаться плагины, — ошибёшься, переделать тяжело.','Плагины могут конфликтовать между собой||Два дополнения иногда мешают друг другу — как два расширения, ломающие один сайт.','Трудно менять контракт после релиза||Если поменять «разъём», все ранее написанные плагины перестанут подходить.','Не подходит, когда логика глубоко переплетена||Если всё крепко связано, разрезать систему на ядро и плагины не выйдет.'],
+ when:['Продукт с большим количеством опциональных функций','Нужны кастомизации под разных клиентов','Планируется экосистема сторонних расширений','Базовая функциональность стабильна, надстройки — нет'],
+ avoid:['Функциональность монолитна и тесно связана','Нет стабильного «ядра», всё меняется одинаково часто','Накладные расходы на плагины не оправданы'],
+ code:{lang:'Python',file:'plugins.py',body:`<span class="c"># Контракт расширения — то, что знает ядро</span>
+<span class="k">class</span> <span class="t">Plugin</span>(ABC):
+    name: <span class="t">str</span>
+    <span class="f">@abstractmethod</span>
+    <span class="k">def</span> <span class="f">process</span>(<span class="k">self</span>, doc): ...
+
+<span class="c"># Ядро — стабильное, ничего не знает о конкретных плагинах</span>
+<span class="k">class</span> <span class="t">Core</span>:
+    <span class="k">def</span> <span class="f">__init__</span>(<span class="k">self</span>): <span class="k">self</span>.plugins = []
+    <span class="k">def</span> <span class="f">register</span>(<span class="k">self</span>, plugin: Plugin):
+        <span class="k">self</span>.plugins.<span class="f">append</span>(plugin)     <span class="c"># подключение по контракту</span>
+    <span class="k">def</span> <span class="f">run</span>(<span class="k">self</span>, doc):
+        <span class="k">for</span> p <span class="k">in</span> <span class="k">self</span>.plugins:
+            doc = p.<span class="f">process</span>(doc)        <span class="c"># ядро зовёт плагины</span>
+        <span class="k">return</span> doc
+
+<span class="c"># Плагины — добавляются без изменения ядра</span>
+<span class="k">class</span> <span class="t">SpellCheck</span>(Plugin):
+    name = <span class="s">"spell"</span>
+    <span class="k">def</span> <span class="f">process</span>(<span class="k">self</span>, doc): <span class="k">return</span> <span class="f">fix_typos</span>(doc)
+
+core = <span class="f">Core</span>()
+core.<span class="f">register</span>(<span class="f">SpellCheck</span>())   <span class="c"># хотим больше — просто register(...)</span>`},
+ note:'Сила плагинной модели — в контракте расширения. Спроектируйте его заранее и широко: менять контракт после того, как на него завязались десятки плагинов, очень дорого.'},
+
+/* ===================== МИКРОСЕРВИСЫ ===================== */
+{id:'micro',cat:'Системный уровень',cc:'#ffd166',name:'Микросервисы',
+ tagline:'Система из небольших автономных сервисов, каждый со своей БД и циклом жизни.',
+ sections:[
+  {h:'Почему они появились',p:[
+   'Микросервисы — ответ на боль больших организаций, а не на технический каприз. Когда над одним монолитом работают сотни инженеров, любая правка встаёт в очередь общего релиза, сборка идёт часами, а сбой в одном модуле роняет всё. Amazon, Netflix и другие компании столкнулись с этим в середине 2000-х и стали резать монолиты на независимые сервисы.',
+   'Закон Конвея гласит: структура системы повторяет структуру общающихся команд. Микросервисы — это попытка осознанно выстроить и команды, и систему так, чтобы каждая команда владела своим сервисом целиком.']},
+  {h:'Что именно решают',p:[
+   'Главная ценность — независимость развёртывания. Команда выкатывает свой сервис, когда готова, не дожидаясь остальных. Второе — независимое масштабирование: «горячий» сервис (например, поиск) можно поднять в десяти копиях, а редкий — оставить в одной. Третье — изоляция сбоев: упавший сервис рекомендаций не должен мешать оформить заказ.',
+   'Важнейшее правило — у каждого сервиса своя база данных. Если сервисы лезут в общую БД, они снова связаны намертво, и вы получаете «распределённый монолит» — худшее из двух миров: сложность сети плюс жёсткая связанность.']},
+  {h:'Как это устроено и чего стоит',p:[
+   'Снаружи обычно стоит API Gateway — единая точка входа, которая маршрутизирует запросы. Сервисы общаются синхронно (HTTP/gRPC) или асинхронно через шину событий. Поскольку данные разбросаны, единой транзакции на всю систему нет: согласованность достигается через паттерны вроде saga, а данные становятся «согласованными в конечном счёте» (eventual consistency).',
+   'За независимость платят сложностью: распределённая отладка, сетевые отказы, версионирование контрактов, наблюдаемость (логи/трейсы/метрики), серьёзная инфраструктура (контейнеры, оркестрация). Эта цена оправдана при большом масштабе и больших командах — и почти никогда на старте маленького проекта.']}
+ ],
+ analogy:'Это как <strong>фуд-корт в торговом центре</strong> вместо одного ресторана: отдельный киоск с пиццей, отдельный с суши, отдельный с кофе. У каждого своя кухня, свой персонал и свой график. Если суши-киоск закрылся на ремонт — пиццу всё равно продают. Можно нанять больше людей только в самый популярный киоск. Но теперь нужен общий менеджер фуд-корта, единая навигация и больше координации.',
+ realworld:[{who:'Netflix',what:'Стриминг работает на сотнях независимых микросервисов — каждый отвечает за свой кусок (рекомендации, оплата, плеер) и обновляется отдельно.'},{who:'Amazon',what:'Перешёл от огромного монолита к тысячам сервисов, чтобы сотни команд могли выкатывать изменения независимо.'},{who:'Uber',what:'Поездки, оплата, карты, уведомления — всё это отдельные сервисы, которые масштабируются под свою нагрузку.'}],
+ diag:'micro',dcap:'Каждый сервис владеет своей БД; общение через Gateway и шину событий',
+ good:['Независимый деплой и масштабирование сервисов||Каждый «киоск» обновляется и усиливается сам по себе, не трогая остальные.','Свобода выбора технологий под задачу||Один сервис на Python, другой на Go — каждый берёт удобный ему инструмент.','Изоляция сбоев между сервисами||Упал один сервис — остальные работают, как закрытый на ремонт киоск на фуд-корте.','Команды работают и релизятся автономно||Разные команды не ждут друг друга и выкатывают свои части когда готовы.'],
+ bad:['Высокая сложность распределённой системы||Вместо одной программы — рой сервисов, которые надо как-то координировать. Это дорого по силам.','Сетевые задержки, отказы, повторы||Сервисы «звонят» друг другу по сети, а связь бывает медленной и обрывается.','Сложная отладка сквозных сценариев||Чтобы найти ошибку, приходится собирать логи из пяти сервисов и складывать пазл.','Серьёзные требования к DevOps и наблюдаемости||Нужны мощные инструменты для развёртывания и слежки — иначе утонешь в хаосе.','Риск «распределённого монолита» при общих данных||Если сервисы слишком связаны, получишь все минусы обоих подходов и ни одного плюса.'],
+ when:['Большая организация со множеством команд','Нужно масштабировать части системы независимо','Разным подсистемам подходят разные технологии','Критична изоляция сбоев и независимость релизов'],
+ avoid:['Маленькая команда или ранняя стадия продукта','Границы между подсистемами ещё не ясны','Нет зрелой инфраструктуры и практик DevOps'],
+ code:{lang:'JavaScript',file:'orders-service.js',body:`<span class="c">// Сервис Orders — отдельный процесс, своя БД, свой порт</span>
+<span class="k">import</span> express <span class="k">from</span> <span class="s">'express'</span>;
+<span class="k">const</span> app = <span class="f">express</span>();
+<span class="k">const</span> db = <span class="f">connectDB</span>(<span class="s">'orders_db'</span>);   <span class="c">// БД принадлежит только этому сервису</span>
+
+app.<span class="f">post</span>(<span class="s">'/orders'</span>, <span class="k">async</span> (req, res) => {
+  <span class="k">const</span> order = <span class="k">await</span> db.<span class="f">save</span>(req.body);
+
+  <span class="c">// общение с другим сервисом — строго по сети</span>
+  <span class="k">await</span> <span class="f">fetch</span>(<span class="s">'http://payments:8003/charge'</span>, {
+    method: <span class="s">'POST'</span>,
+    body: <span class="t">JSON</span>.<span class="f">stringify</span>({ id: order.id, amount: order.total })
+  });
+
+  <span class="c">// и/или асинхронно — публикуем событие в шину</span>
+  bus.<span class="f">publish</span>(<span class="s">'order.created'</span>, order);
+  res.<span class="f">status</span>(<span class="n">201</span>).<span class="f">json</span>(order);
+});
+
+app.<span class="f">listen</span>(<span class="n">8002</span>);   <span class="c">// деплоится и масштабируется отдельно</span>`},
+ note:'Не начинайте с микросервисов. Растите монолит, наблюдайте, где он реально болит, и выносите эти куски. «Distributed monolith» болезненнее обоих чистых вариантов.'},
+
+/* ===================== SOA ===================== */
+{id:'soa',cat:'Системный уровень',cc:'#ffd166',name:'Сервис-ориентированная (SOA)',
+ tagline:'Крупные переиспользуемые сервисы, общающиеся через общую шину (ESB).',
+ sections:[
+  {h:'Предшественник микросервисов',p:[
+   'SOA (Service-Oriented Architecture) — корпоративный подход 2000-х, идейный предок микросервисов. Цель была амбициозной: разбить разрозненные системы предприятия (биллинг, склад, CRM) на сервисы, которые можно переиспользовать в разных бизнес-процессах, и связать их единой шиной — ESB (Enterprise Service Bus).',
+   'В отличие от микросервисов, сервисы в SOA крупнее, часто разделяют данные и сильно полагаются на «умную» шину, которая маршрутизирует, преобразует форматы и оркеструет вызовы.']},
+  {h:'Что решает и в чём подвох',p:[
+   'SOA решает задачу интеграции зоопарка унаследованных систем: вместо того чтобы соединять каждую с каждой (получая «спагетти» из интеграций), всё подключают к шине. Это даёт единые стандарты обмена и переиспользование сервисов между процессами.',
+   'Подвох — в «умной» шине. ESB склонна вбирать в себя бизнес-логику и становиться центральным узким местом и точкой отказа. Микросервисы позже сознательно сделали наоборот: «умные конечные точки, тупые каналы» — логика в сервисах, а транспорт максимально простой.']}
+ ],
+ analogy:'Представь <strong>крупную корпорацию с общими отделами</strong>: есть единая бухгалтерия, единый отдел кадров, единая служба доставки. Любой проект внутри компании не заводит свою бухгалтерию, а обращается в общую через официальную заявку. Сервисы крупные, общие для всего предприятия, и общаются через единую «шину» — как через общий корпоративный документооборот.',
+ realworld:[{who:'Банки и страховые',what:'Старые крупные банки используют SOA, чтобы соединить разрозненные системы (карты, кредиты, вклады) через общую сервисную шину.'},{who:'Телеком-операторы',what:'Биллинг, тарифы, абоненты — разные системы, интегрированные как переиспользуемые сервисы предприятия.'},{who:'Госструктуры',what:'Большие интеграционные платформы ведомств часто построены на SOA для связи legacy-систем.'}],
+ diag:'soa',dcap:'Сервисы подключены к общей шине, которая маршрутизирует и преобразует вызовы',
+ good:['Интеграция разнородных корпоративных систем||Старые и новые системы предприятия начинают «говорить» через общий язык.','Переиспользование крупных сервисов||Один общий сервис (например, оплата) используют все проекты компании, не делая своих копий.','Единые стандарты обмена сообщениями||Все общаются по одним правилам — как единый корпоративный документооборот.','Централизованное управление политиками||Правила безопасности и доступа задаются в одном месте для всех сразу.'],
+ bad:['ESB — узкое место и точка отказа||Вся связь идёт через одну «шину»; сломалась она — встало всё предприятие.','Логика «утекает» в шину||Бизнес-правила постепенно расползаются по шине, и в ней становится трудно разобраться.','Тяжёлые протоколы (исторически SOAP/XML)||Сообщения громоздкие и медленные — как пересылать всё заказными письмами с печатями.','Сложно и дорого внедрять и поддерживать||Требует тяжёлой инфраструктуры и опытных людей — малому проекту не по карману.'],
+ when:['Крупное предприятие с множеством legacy-систем','Нужна стандартизированная интеграция','Сервисы переиспользуются в разных процессах'],
+ avoid:['Новый продукт без груза legacy','Нужна предельная независимость частей','Команда невелика — накладные расходы не окупятся'],
+ code:{lang:'XML',file:'esb-route.xml',body:`<span class="c">&lt;!-- Маршрут на шине: входящее сообщение от Биллинга --&gt;</span>
+<span class="t">&lt;route&gt;</span>
+  <span class="t">&lt;from</span> uri=<span class="s">"jms:queue:billing.orders"</span><span class="t">/&gt;</span>
+
+  <span class="c">&lt;!-- шина преобразует формат под получателя --&gt;</span>
+  <span class="t">&lt;transform&gt;</span>
+    <span class="t">&lt;xslt</span> resource=<span class="s">"billing-to-warehouse.xsl"</span><span class="t">/&gt;</span>
+  <span class="t">&lt;/transform&gt;</span>
+
+  <span class="c">&lt;!-- и маршрутизирует по содержимому --&gt;</span>
+  <span class="t">&lt;choice&gt;</span>
+    <span class="t">&lt;when</span> predicate=<span class="s">"\${body.priority} == 'high'"</span><span class="t">&gt;</span>
+      <span class="t">&lt;to</span> uri=<span class="s">"http:warehouse/express"</span><span class="t">/&gt;</span>
+    <span class="t">&lt;/when&gt;</span>
+    <span class="t">&lt;otherwise&gt;</span>
+      <span class="t">&lt;to</span> uri=<span class="s">"http:warehouse/standard"</span><span class="t">/&gt;</span>
+    <span class="t">&lt;/otherwise&gt;</span>
+  <span class="t">&lt;/choice&gt;</span>
+<span class="t">&lt;/route&gt;</span>`},
+ note:'Главный урок SOA, усвоенный микросервисами: держите каналы связи простыми, а ум — в сервисах. «Умная» шина рано или поздно станет монолитом в центре системы.'},
+
+/* ===================== СОБЫТИЙНАЯ ===================== */
+{id:'event',cat:'Системный уровень',cc:'#c792ea',name:'Событийно-ориентированная',
+ tagline:'Компоненты общаются асинхронно через события, не зная друг о друге напрямую.',
+ sections:[
+  {h:'Сдвиг мышления',p:[
+   'Большинство архитектур мыслят командами: «сделай X», и мы ждём ответа. Событийная архитектура мыслит фактами: «X произошло», и каждый, кому это важно, реагирует сам. Producer публикует событие в брокер и забывает о нём; consumer-ы независимо подписываются и обрабатывают.',
+   'Это инверсия зависимости во времени и в знании: отправитель не знает, кто его слушает, сколько их и что они сделают. Появился новый интересант — он просто подписывается, существующий код не меняется.']},
+  {h:'Что это даёт',p:[
+   'Слабая связанность и расширяемость. Чтобы добавить новую реакцию на «заказ создан» (например, начисление бонусов), вы пишете нового подписчика — и всё. Producer об этом даже не узнает. Плюс — естественная масштабируемость и реактивность: события обрабатываются параллельно и в реальном времени.',
+   'Цена — потеря наглядности потока. В командной модели вы читаете код сверху вниз. В событийной поток «рассыпан» по подписчикам, и понять весь сценарий целиком труднее. Добавьте сюда eventual consistency, возможные дубликаты и необходимость идемпотентности обработчиков.']},
+  {h:'Два стиля',p:[
+   'Различают брокерный стиль (события летят через брокер ко всем подписчикам, оркестрации нет) и медиаторный (центральный координатор управляет шагами сложного процесса). Брокерный проще и масштабируемее, но за процессом тяжелее следить; медиаторный нагляднее для многошаговых сценариев, но вводит центральный узел.']}
+ ],
+ analogy:'Это как <strong>служба с рацией или общий чат-канал</strong>: кто-то кричит «Заказ №5 готов!» — и все, кому это важно, реагируют сами: кассир пробивает, курьер выезжает, кухня берёт следующий заказ. Тот, кто объявил, не звонит каждому лично и даже не знает, кто слушает. Все просто реагируют на события по мере их появления.',
+ realworld:[{who:'Системы такси и доставки',what:'Событие «водитель принял заказ» мгновенно запускает уведомления, расчёт маршрута и оплату — независимо друг от друга.'},{who:'Биржи и трейдинг',what:'Каждое изменение цены — это событие, на которое реагируют тысячи подписчиков в реальном времени.'},{who:'IoT и умный дом',what:'Датчик сработал → событие → свет включился, уведомление ушло, запись началась.'}],
+ diag:'event',dcap:'Producer публикует событие; несколько consumer-ов реагируют независимо',
+ good:['Слабая связанность компонентов||Отправитель события не знает, кто его слушает, — можно менять реакции, не трогая источник.','Лёгкое добавление новых реакций||Нужно новое поведение? Просто добавь ещё одного «слушателя» события, ничего не ломая.','Хорошая масштабируемость и реактивность||Система легко тянет всплески: события копятся в очереди и обрабатываются по мере сил.','Естественная асинхронность||Объявил событие и пошёл дальше — не надо стоять и ждать ответа.'],
+ bad:['Сложно проследить сквозной поток||Трудно понять «что за чем»: события летают, и общую картину собрать непросто.','Eventual consistency, не мгновенно||Данные согласуются «чуть погодя», а не сразу — пару секунд может быть рассинхрон.','Тяжёлая отладка цепочек событий||Ошибку искать сложно: одно событие тянет другое, и цепочка ветвится.','Нужны идемпотентность и обработка дублей||Одно событие может прийти дважды — код обязан не сломаться от повтора.'],
+ when:['Реактивные системы реального времени','Много независимых реакций на одно событие','IoT, аналитика, потоковая обработка','Нужно добавлять функции без правки ядра'],
+ avoid:['Нужны строгие мгновенные транзакции','Простой линейный процесс «запрос-ответ»','Команде тяжело даётся асинхронное мышление'],
+ code:{lang:'Python',file:'events.py',body:`<span class="c"># Producer публикует факт и не ждёт ответа</span>
+<span class="k">class</span> <span class="t">OrderService</span>:
+    <span class="k">def</span> <span class="f">place_order</span>(<span class="k">self</span>, order):
+        <span class="f">save</span>(order)
+        broker.<span class="f">publish</span>(<span class="s">"order.created"</span>, {
+            <span class="s">"id"</span>: order.id, <span class="s">"total"</span>: order.total
+        })   <span class="c"># не знает, кто слушает</span>
+
+<span class="c"># Подписчики реагируют независимо друг от друга</span>
+<span class="f">@broker.subscribe</span>(<span class="s">"order.created"</span>)
+<span class="k">def</span> <span class="f">send_email</span>(e):
+    mailer.<span class="f">send</span>(e[<span class="s">"id"</span>], <span class="s">"Заказ принят"</span>)
+
+<span class="f">@broker.subscribe</span>(<span class="s">"order.created"</span>)
+<span class="k">def</span> <span class="f">update_analytics</span>(e):
+    analytics.<span class="f">track</span>(<span class="s">"sale"</span>, e[<span class="s">"total"</span>])
+
+<span class="c"># Нужна новая реакция? Просто ещё один @subscribe.</span>
+<span class="c"># Код OrderService при этом НЕ меняется.</span>`},
+ note:'Делайте обработчики идемпотентными: одно и то же событие может прийти дважды. «Обработал один раз» в распределённом мире — гарантия, которую почти никто не даёт.'},
+
+/* ===================== PIPELINE ===================== */
+{id:'pipeline',cat:'Системный уровень',cc:'#3ddc97',name:'Конвейер (Pipes & Filters)',
+ tagline:'Данные проходят через цепочку независимых обработчиков-«фильтров».',
+ sections:[
+  {h:'Древняя и живучая идея',p:[
+   'Этот стиль вы используете каждый день в терминале: cat file | grep error | sort | uniq. Каждая команда — «фильтр», вертикальная черта — «труба». Данные текут слева направо, каждый фильтр делает ровно одно преобразование и передаёт результат дальше.',
+   'Тот же принцип лежит в основе компиляторов (лексер → парсер → оптимизатор → генератор кода), ETL-процессов обработки данных и CI/CD-конвейеров.']},
+  {h:'Что решает',p:[
+   'Конвейер раскладывает сложное преобразование на простые, независимые, переиспользуемые шаги. Каждый фильтр ничего не знает о соседях — только о формате входа и выхода. Их легко переставлять, заменять и тестировать поодиночке, а при необходимости — распараллелить.',
+   'Ограничение: стиль естественен там, где задача и правда сводится к последовательному потоку данных. Если шаги должны активно общаться между собой, ветвиться и возвращаться назад, конвейер начинает сопротивляться.']}
+ ],
+ analogy:'Представь <strong>заводской конвейер</strong> или приготовление сэндвича в линию: один кладёт хлеб, другой — котлету, третий — соус, четвёртый заворачивает. Каждый делает ровно одну операцию и передаёт дальше. Продукт движется по цепочке, постепенно превращаясь из сырья в готовый результат.',
+ realworld:[{who:'Компиляторы',what:'Код проходит этапы: лексический анализ → разбор → оптимизация → генерация машинного кода — классический конвейер.'},{who:'ETL и обработка данных',what:'Данные читаются, чистятся, преобразуются и загружаются — каждый шаг отдельный фильтр (Apache Spark, Airflow).'},{who:'Unix-команды',what:'Связка вроде cat file | grep error | sort | uniq — это и есть конвейер из маленьких программ.'}],
+ diag:'pipeline',dcap:'Каждый фильтр делает одно преобразование и передаёт данные следующему',
+ good:['Простые, переиспользуемые шаги||Каждый фильтр делает одно понятное дело и годится для разных конвейеров.','Лёгкая замена и перестановка фильтров||Шаги можно переставить местами или подменить, как звенья на конвейере.','Каждый фильтр тестируется отдельно||Проверяешь один шаг изолированно: дал вход — получил выход.','Естественно параллелится||Пока один шаг обрабатывает деталь, следующий уже берёт предыдущую — как на заводе.'],
+ bad:['Плохо подходит для интерактивных сценариев||Конвейер хорош для потока данных, а не для диалога с пользователем «вопрос-ответ».','Накладные расходы на передачу между шагами||Перекладывание данных от фильтра к фильтру само по себе тратит время.','Сквозная обработка ошибок неочевидна||Если деталь сломалась посередине — непонятно, кто и как должен это чинить.','Не для ветвящейся логики с возвратами||Конвейер идёт в одну сторону; сложные «если-иначе» с откатами в него не вписать.'],
+ when:['Обработка данных, ETL, потоки','Компиляторы, трансформации текста/медиа','CI/CD и пакетная обработка','Чёткий линейный поток вход → выход'],
+ avoid:['Интерактивные приложения с состоянием','Сложная ветвящаяся логика','Шагам нужно постоянно общаться друг с другом'],
+ code:{lang:'Python',file:'pipeline.py',body:`<span class="c"># Каждый фильтр — функция: вход → выход</span>
+<span class="k">def</span> <span class="f">read_csv</span>(path):     <span class="k">return</span> <span class="f">open</span>(path).<span class="f">read</span>().<span class="f">splitlines</span>()
+<span class="k">def</span> <span class="f">drop_empty</span>(rows):  <span class="k">return</span> [r <span class="k">for</span> r <span class="k">in</span> rows <span class="k">if</span> r.<span class="f">strip</span>()]
+<span class="k">def</span> <span class="f">to_upper</span>(rows):    <span class="k">return</span> [r.<span class="f">upper</span>() <span class="k">for</span> r <span class="k">in</span> rows]
+<span class="k">def</span> <span class="f">count</span>(rows):       <span class="k">return</span> {<span class="s">"lines"</span>: <span class="f">len</span>(rows)}
+
+<span class="c"># "Труба" — просто прогон данных через цепочку</span>
+<span class="k">def</span> <span class="f">pipeline</span>(data, *filters):
+    <span class="k">for</span> f <span class="k">in</span> filters:
+        data = <span class="f">f</span>(data)
+    <span class="k">return</span> data
+
+result = <span class="f">pipeline</span>(<span class="s">"data.csv"</span>,
+    read_csv, drop_empty, to_upper, count)
+<span class="c"># Поменять порядок или вставить фильтр — тривиально</span>`},
+ note:'Сила конвейера — в строгом контракте «один вход → один выход» и отсутствии общего состояния между фильтрами. Как только фильтры начинают «договариваться», вы выходите за рамки стиля.'}
+
+];
+
+/* ============ АРХИТЕКТУРЫ УРОВНЯ ПРИЛОЖЕНИЯ ============ */
+
+const APP = [
+
+/* ===================== MVC ===================== */
+{id:'mvc',cat:'Уровень приложения',cc:'#5b9cff',name:'MVC (Model-View-Controller)',
+ tagline:'Разделение приложения на данные, отображение и обработку ввода.',
+ sections:[
+  {h:'Самый старый из «MV*»',p:[
+   'MVC придумал Трюгве Реенскауг в Smalltalk ещё в 1979 году — задолго до веба. Идея была в том, чтобы отделить внутреннюю модель данных от того, как пользователь её видит и как с ней взаимодействует. С приходом веба MVC стал почти стандартом серверных фреймворков: Ruby on Rails, Django, Spring MVC, Laravel — все опираются на него.',
+   'Это базовый словарь, на котором говорит вся индустрия. Понимая MVC, легче разобраться в его наследниках — MVP, MVVM, MVI, о которых речь в разделе мобильной разработки.']},
+  {h:'Какую проблему решает',p:[
+   'Без разделения логика расчётов, доступ к данным и разметка перемешаны. Дизайнер не может тронуть вёрстку, не рискуя задеть бизнес-правила; разработчик не может изменить логику, не копаясь в HTML. MVC разводит три роли: Model хранит данные и правила, View их показывает, Controller принимает ввод пользователя и связывает первые два.',
+   'Выгода — параллельная работа и переиспользование. Одну и ту же Model можно показать в разных View; верстальщик и бэкендер работают, не мешая друг другу.']},
+  {h:'Как это устроено и где спотыкается',p:[
+   'Поток обычно такой: пользователь действует во View → Controller получает событие → обращается к Model → Model меняется → View перерисовывается с новыми данными. В вебе на каждый HTTP-запрос Controller достаёт данные из Model и отдаёт их в шаблон (View).',
+   'Частая болезнь — «толстый контроллер»: в него стекается вся логика, и он разрастается. Лекарство — выносить бизнес-правила в Model или в отдельный сервисный слой, оставляя контроллеру только оркестрацию. И помните: MVC описывает одно приложение, а не структуру всей системы — это уровень приложения, а не системный.']}
+ ],
+ analogy:'Это как <strong>ресторан</strong>: <strong>официант (Controller)</strong> принимает твой заказ и передаёт на кухню; <strong>кухня (Model)</strong> готовит еду и знает все рецепты; <strong>тарелка с блюдом (View)</strong> — то, что ты видишь на столе. Ты общаешься с официантом, а не лезешь на кухню сам. Каждый занят своим делом.',
+ realworld:[{who:'Ruby on Rails',what:'Фреймворк целиком построен вокруг MVC — это его философия по умолчанию.'},{who:'Spring MVC / Laravel',what:'Самые популярные веб-фреймворки на Java и PHP раскладывают серверный код именно так.'},{who:'Django',what:'Использует ту же идею (там её называют MVT), разделяя данные, логику и шаблоны страниц.'}],
+ diag:'mvc',dcap:'Ввод идёт в Controller, тот меняет Model, изменения отражаются во View',
+ good:['Общепонятный, поддержан всеми веб-фреймворками||Почти любой веб-инструмент уже устроен так — учить отдельно не придётся.','Параллельная работа над логикой и вёрсткой||Дизайнер правит внешний вид (View), программист — логику, не мешая друг другу.','Переиспользование Model в разных View||Одни и те же данные можно показать и на сайте, и в мобильной версии.','Низкий порог входа||Идея «официант — кухня — тарелка» понятна с первого раза.'],
+ bad:['Контроллеры склонны разрастаться||«Официант» постепенно берёт на себя слишком много — превращается в свалку кода.','Границы View↔Controller бывают размыты||Иногда непонятно, где заканчивается экран и начинается логика.','Избыточен для совсем простых страниц||Для одной статичной странички делить всё на три части — перебор.','Не описывает связи внутри слоёв||MVC говорит про три роли, но не про то, как организовать код внутри каждой.'],
+ when:['Серверные веб-приложения и сайты','Админ-панели, блоги, CMS','Команда уже знает MVC-фреймворк','Нужен предсказуемый стандарт'],
+ avoid:['Богатый интерактивный клиент со сложным состоянием (там лучше MVVM/MVI)','Совсем простая страница без логики','Системный уровень — это другой вопрос'],
+ code:{lang:'Python',file:'mvc_django.py',body:`<span class="c"># MODEL — данные и бизнес-правила</span>
+<span class="k">class</span> <span class="t">Article</span>(models.Model):
+    title = models.<span class="f">CharField</span>(max_length=<span class="n">200</span>)
+    body  = models.<span class="f">TextField</span>()
+    <span class="k">def</span> <span class="f">is_long</span>(<span class="k">self</span>):
+        <span class="k">return</span> <span class="f">len</span>(<span class="k">self</span>.body) &gt; <span class="n">1000</span>
+
+<span class="c"># CONTROLLER — принимает запрос, связывает Model и View</span>
+<span class="k">def</span> <span class="f">article_detail</span>(request, pk):
+    article = Article.objects.<span class="f">get</span>(pk=pk)        <span class="c"># берём из Model</span>
+    <span class="k">return</span> <span class="f">render</span>(request, <span class="s">"article.html"</span>,    <span class="c"># отдаём во View</span>
+                  {<span class="s">"article"</span>: article})
+
+<span class="c"># VIEW (шаблон article.html) — только отображение</span>
+<span class="c"># &lt;h1&gt;{{ article.title }}&lt;/h1&gt;</span>
+<span class="c"># &lt;p&gt;{{ article.body }}&lt;/p&gt;</span>
+
+<span class="c"># Толстую логику держим в Model/сервисах, не в контроллере</span>`},
+ note:'MVC отвечает на вопрос «кто за что отвечает внутри одного приложения». Структуру всей системы (слои, сервисы) он не описывает — это разные уровни решения.'},
+
+/* ===================== ГЕКСАГОНАЛЬНАЯ ===================== */
+{id:'hex',cat:'Уровень приложения',cc:'#3ddc97',name:'Гексагональная (Ports & Adapters)',
+ tagline:'Бизнес-ядро в центре, весь внешний мир подключается через порты и адаптеры.',
+ sections:[
+  {h:'Бунт против «БД в центре»',p:[
+   'Алистер Кокбёрн сформулировал гексагональную архитектуру в 2005 году, протестуя против привычки строить приложение вокруг базы данных и фреймворка. Его тезис: бизнес-логика — это главное, а БД, веб и почта — лишь сменные детали. Значит, ядро не должно зависеть от них; наоборот, они должны подстраиваться под ядро.',
+   '«Гексагон» на схеме — просто способ показать, что у ядра много граней-портов для связи с внешним миром, и ни одна не главнее другой. Число шесть роли не играет.']},
+  {h:'Проблема и решение',p:[
+   'Когда домен завязан на конкретную БД или фреймворк, смена технологии превращается в переписывание логики, а тесты требуют поднимать настоящую базу. Гексагональная архитектура разрывает эту зависимость через инверсию: ядро объявляет порты — интерфейсы вида «мне нужно уметь сохранять заказ», не зная, кто и как это сделает.',
+   'Внешний мир реализует эти порты адаптерами. Адаптер для PostgreSQL, адаптер для Stripe, адаптер для REST — все они подключаются к портам снаружи. В тестах подставляется фейковый адаптер, и ядро проверяется мгновенно, без всякой инфраструктуры.']},
+  {h:'Driving и driven',p:[
+   'Порты делятся на входящие (driving) — те, через кого мир дёргает ядро (REST-контроллер, CLI), и исходящие (driven) — те, кого дёргает само ядро (репозиторий БД, отправка почты). Ключевая дисциплина: зависимости направлены внутрь, к ядру. Ядро не импортирует ни драйверы, ни фреймворки.',
+   'Платой становятся дополнительные интерфейсы и «церемонии». Для простого CRUD это избыточно. Но для сложного домена, который должен пережить смену технологий и требует серьёзного тестирования, вложение окупается многократно.']}
+ ],
+ analogy:'Представь <strong>системный блок компьютера с разъёмами (портами)</strong>: внутри — материнская плата (твоя бизнес-логика), и ей всё равно, какая именно мышь или клавиатура воткнута в USB. Можно поменять мышь, монитор, наушники — система продолжит работать. Логика общается с миром через стандартные «разъёмы», а конкретные устройства (база, почта, интерфейс) — это сменные «адаптеры».',
+ realworld:[{who:'Приложения со сменной БД',what:'Команды, которым важно уметь заменить PostgreSQL на другую базу или замокать её в тестах, выбирают гексагональную.'},{who:'Финтех и сложный домен',what:'Где бизнес-правила дороже технологий — ядро изолируют от фреймворков, чтобы оно жило десятилетиями.'},{who:'Тестируемые бэкенды',what:'Логику можно тестировать без реальной базы и сети — просто подставив фейковые адаптеры.'}],
+ diag:'hex',dcap:'Порты — интерфейсы ядра; адаптеры — их сменные реализации снаружи',
+ good:['Ядро полностью изолировано от инфраструктуры||Бизнес-логика не знает про базу и фреймворк — как материнская плата не знает марку мыши.','Технологии (БД, UI) легко заменяются||Поменять PostgreSQL на другую базу — как переткнуть устройство в другой USB-разъём.','Превосходная тестируемость через фейковые адаптеры||Логику проверяешь, подставив «игрушечную» базу вместо настоящей — быстро и без сети.','Логика переживает смену фреймворков||Мода на технологии меняется, а ценное ядро остаётся нетронутым годами.'],
+ bad:['Много интерфейсов и абстракций||За гибкость платишь количеством «разъёмов» — кода становится больше.','Избыточна для простых CRUD-приложений||Если приложение просто читает и пишет данные, вся эта изоляция — лишняя сложность.','Крутая кривая обучения||Новичку трудно сразу понять, зачем столько прослоек между логикой и базой.','Больше шаблонного кода||Приходится писать дополнительные интерфейсы-«переходники», даже когда логики мало.'],
+ when:['Сложный, ценный бизнес-домен (часто с DDD)','Технологии нужно держать сменными','Высокие требования к тестируемости','Долгоживущая система с меняющейся инфраструктурой'],
+ avoid:['Простое CRUD-приложение','Прототип или короткоживущий проект','Команда не готова к дисциплине абстракций'],
+ code:{lang:'Python',file:'hexagonal.py',body:`<span class="c"># ПОРТ — интерфейс, который объявляет САМО ядро</span>
+<span class="k">class</span> <span class="t">PaymentPort</span>(ABC):
+    <span class="f">@abstractmethod</span>
+    <span class="k">def</span> <span class="f">charge</span>(<span class="k">self</span>, amount: <span class="t">float</span>) -&gt; <span class="t">bool</span>: ...
+
+<span class="c"># ЯДРО — зависит только от порта, не от реализации</span>
+<span class="k">class</span> <span class="t">CheckoutService</span>:
+    <span class="k">def</span> <span class="f">__init__</span>(<span class="k">self</span>, payment: PaymentPort):
+        <span class="k">self</span>.payment = payment
+    <span class="k">def</span> <span class="f">buy</span>(<span class="k">self</span>, amount):
+        <span class="k">if</span> <span class="k">self</span>.payment.<span class="f">charge</span>(amount):
+            <span class="k">return</span> <span class="s">"Оплачено"</span>
+
+<span class="c"># АДАПТЕР — конкретная реализация порта (деталь)</span>
+<span class="k">class</span> <span class="t">StripeAdapter</span>(PaymentPort):
+    <span class="k">def</span> <span class="f">charge</span>(<span class="k">self</span>, amount):
+        <span class="k">return</span> stripe_api.<span class="f">pay</span>(amount)
+
+<span class="c"># В тестах — фейк. Ядро не меняется ни на строчку.</span>
+<span class="k">class</span> <span class="t">FakePayment</span>(PaymentPort):
+    <span class="k">def</span> <span class="f">charge</span>(<span class="k">self</span>, amount): <span class="k">return</span> <span class="k">True</span>`},
+ note:'Запомните направление: зависимости всегда указывают внутрь, к ядру. Если домен начал импортировать драйвер БД или фреймворк — гексагон сломан.'},
+
+/* ===================== ONION / CLEAN ===================== */
+{id:'onion',cat:'Уровень приложения',cc:'#ff7849',name:'Луковичная / Чистая (Onion / Clean)',
+ tagline:'Концентрические кольца зависимостей, направленных строго внутрь.',
+ sections:[
+  {h:'Развитие одной идеи',p:[
+   'Луковичную архитектуру предложил Джеффри Палермо (2008), а Роберт Мартин позже обобщил её в «Чистую архитектуру» (Clean Architecture). По духу это родственники гексагональной: тот же принцип защиты бизнес-логики от внешнего мира, но выраженный через концентрические кольца.',
+   'В центре — Entities (базовые сущности и правила предприятия). Вокруг — Use Cases (сценарии приложения). Дальше — адаптеры интерфейсов (контроллеры, презентеры, шлюзы). Снаружи — фреймворки и драйверы (UI, БД, веб).']},
+  {h:'Главное правило',p:[
+   'Единственное жёсткое правило — правило зависимостей: исходный код может зависеть только в направлении внутрь, к центру. Внутренние кольца ничего не знают о внешних. Сущность не знает про базу данных; сценарий не знает, пришёл запрос по HTTP или из CLI.',
+   'Это решает ту же боль, что и гексагон: бизнес-логика не привязана к инфраструктуре и легко тестируется. Разница в основном в терминологии и в явном выделении слоя сценариев (use cases) как самостоятельного кольца.']},
+  {h:'Где это особенно полезно',p:[
+   'Onion/Clean хорошо ложится на крупные приложения с богатой логикой, которые должны жить годами и переживать смену UI и хранилищ. Именно из мобильного мира (где этот подход очень популярен) сформировалась практичная трёхслойная версия — Presentation / Domain / Data, о которой подробно в разделе мобильной разработки.',
+   'Обратная сторона — та же, что у гексагона: много слоёв, интерфейсов и преобразований данных между кольцами. Для небольшого проекта это лишний вес.']}
+ ],
+ analogy:'Это как <strong>луковица или матрёшка</strong>: в самом центре — самое ценное и неизменное (правила бизнеса), вокруг — слои попроще, а снаружи — оболочка, которую легко поменять (база, веб, фреймворки). Главное правило: внешние слои зависят от внутренних, но никогда наоборот. Ядро ничего не знает про то, что снаружи — поэтому его легко защитить и протестировать.',
+ realworld:[{who:'Крупные долгоживущие бэкенды',what:'Системы, которые живут 10+ лет и переживают смену технологий, держат бизнес-правила в защищённом ядре.'},{who:'Корпоративные .NET-приложения',what:'Clean/Onion очень популярна в мире .NET для сложных бизнес-систем.'},{who:'Проекты с частой сменой инфраструктуры',what:'Когда база, очереди или UI меняются, а суть бизнеса — нет.'}],
+ diag:'onion',dcap:'Кольца зависимостей: код зависит только в направлении к центру',
+ good:['Бизнес-правила в центре, защищены от изменений||Самое ценное лежит в сердцевине матрёшки, куда внешние изменения не дотягиваются.','Инфраструктура заменяема без правки ядра||Сменить базу или веб-фреймворк можно, не трогая суть бизнеса.','Отличная тестируемость сценариев||Правила проверяются сами по себе, без запуска базы и сети.','Хорошо масштабируется на крупные системы||Чёткие кольца не дают большому проекту превратиться в кашу.'],
+ bad:['Много слоёв и преобразований данных||Данные по дороге переписываются из формата в формат на каждом кольце.','Избыточна для маленьких приложений||Маленькому проекту столько колец ни к чему — только мешают.','Нужна дисциплина, иначе кольца «протекают»||Стоит разок нарушить правило «зависимости только внутрь» — и защита ядра рушится.','Больше шаблонного кода||Чёткость границ оплачивается дополнительными прослойками и преобразованиями.'],
+ when:['Крупное долгоживущее приложение','Богатая бизнес-логика, которую надо беречь','UI и хранилище могут меняться','Команда ценит тестируемость и порядок'],
+ avoid:['Маленький или короткоживущий проект','Логики почти нет, сплошной CRUD','Нет ресурса поддерживать дисциплину слоёв'],
+ code:{lang:'TypeScript',file:'clean.ts',body:`<span class="c">// ENTITIES (центр) — правила, не знают ни о чём внешнем</span>
+<span class="k">class</span> <span class="t">Order</span> {
+  <span class="k">constructor</span>(<span class="k">public</span> items: Item[]) {}
+  <span class="f">total</span>() { <span class="k">return</span> <span class="k">this</span>.items.<span class="f">reduce</span>((s,i)=&gt;s+i.price,<span class="n">0</span>); }
+}
+
+<span class="c">// USE CASE — сценарий; зависит от интерфейса, не от БД</span>
+<span class="k">interface</span> <span class="t">OrderGateway</span> { save(o: Order): <span class="t">void</span>; }
+
+<span class="k">class</span> <span class="t">PlaceOrder</span> {
+  <span class="k">constructor</span>(<span class="k">private</span> gw: OrderGateway) {}     <span class="c">// ← интерфейс</span>
+  <span class="f">execute</span>(items: Item[]) {
+    <span class="k">const</span> order = <span class="k">new</span> <span class="t">Order</span>(items);
+    <span class="k">this</span>.gw.<span class="f">save</span>(order);                       <span class="c">// зависимость внутрь</span>
+  }
+}
+
+<span class="c">// FRAMEWORK (внешнее кольцо) — реализует интерфейс ядра</span>
+<span class="k">class</span> <span class="t">SqlOrderGateway</span> <span class="k">implements</span> OrderGateway {
+  <span class="f">save</span>(o: Order) { db.<span class="f">query</span>(<span class="s">'INSERT ...'</span>, o); }
+}`},
+ note:'Onion, Clean и Hexagonal — близкие родственники одной идеи: защитить бизнес-логику и направить все зависимости внутрь. Спорить, какая «правильнее», менее полезно, чем усвоить общий принцип.'},
+
+/* ===================== CQRS ===================== */
+{id:'cqrs',cat:'Уровень приложения',cc:'#ff7849',name:'CQRS',
+ tagline:'Разделение операций чтения и записи на отдельные модели.',
+ sections:[
+  {h:'Простая идея с большими последствиями',p:[
+   'CQRS (Command Query Responsibility Segregation) развивает старый принцип CQS Бертрана Мейера: метод либо что-то меняет (команда), либо что-то возвращает (запрос), но не одновременно. CQRS поднимает это на уровень архитектуры: команды и запросы обслуживаются разными моделями, а иногда и разными базами данных.',
+   'Мотивация в том, что чтение и запись в реальных системах устроены очень по-разному. Запись требует строгой проверки правил и нормализованных данных. Чтение требует скорости и часто — данных, уже собранных в удобную для экрана форму.']},
+  {h:'Какую проблему решает',p:[
+   'В единой модели приходится идти на компромисс: структура, удобная для записи (нормализованная, с проверками), неудобна для чтения (нужны тяжёлые JOIN-ы), и наоборот. На высоких нагрузках это становится узким местом, тем более что читают обычно во много раз чаще, чем пишут.',
+   'CQRS разводит эти пути. Write-модель оптимизирована под корректность изменений, read-модель — под быстрые выборки (часто это заранее собранные «проекции» под конкретные экраны). Их можно масштабировать независимо: добавить реплик для чтения, не трогая запись.']},
+  {h:'Цена и сочетания',p:[
+   'Платой становится сложность и рассинхронизация. После записи read-модель обновляется не мгновенно, а через события — наступает eventual consistency, и интерфейс должен это учитывать. Появляется дублирование данных и логики синхронизации.',
+   'CQRS часто идёт в паре с событийной архитектурой и Event Sourcing (хранением не текущего состояния, а всей истории событий). Это мощная связка для сложных доменов, но для обычного приложения она избыточна — не вводите CQRS «на всякий случай».']}
+ ],
+ analogy:'Представь <strong>библиотеку с двумя разными окнами</strong>: одно — «сдать/изменить книги» (там строгий учёт, всё медленно и аккуратно), другое — «найти и почитать каталог» (там быстро, удобно, оптимизировано под поиск). Запись и чтение разведены, потому что у них совершенно разные задачи: записывать надо надёжно, а читать — быстро и часто.',
+ realworld:[{who:'Соцсети и ленты',what:'Лайк ставится в одну модель (запись), а лента подписчиков читается из заранее подготовленной, оптимизированной под чтение.'},{who:'Интернет-магазины',what:'Оформление заказа (запись) и витрина товаров (чтение миллионами людей) обслуживаются по-разному.'},{who:'Банковские истории операций',what:'Проводки пишутся строго, а выписки и аналитика читаются из отдельных оптимизированных представлений.'}],
+ diag:'cqrs',dcap:'Команды пишут в одну модель, запросы читают из другой; синхронизация — событиями',
+ good:['Чтение и запись масштабируются раздельно||Окно «читать» и окно «писать» усиливаешь независимо — каждое под свою нагрузку.','Модели оптимизированы под свою задачу||Запись настроена на надёжность, чтение — на скорость; не надо идти на компромисс.','Отлично сочетается с событиями и Event Sourcing||Естественно дружит с событийным подходом — изменения летят как события.','Гибкость под высокие нагрузки чтения||Когда читают в сотни раз чаще, чем пишут, это позволяет легко выдержать поток.'],
+ bad:['Заметный рост сложности||Вместо одной модели данных теперь две — и их надо держать в синхроне.','Eventual consistency между моделями||Записал — а в «окне чтения» это появится не сразу, с маленькой задержкой.','Дублирование данных и логики||Одни и те же данные хранятся в двух видах, что усложняет поддержку.','Избыточен для простых приложений||Если чтения и записи поровну и их немного — разделять незачем.'],
+ when:['Нагрузка на чтение во много раз выше записи','Сложные отчёты/проекции под разные экраны','Уже используется событийная архитектура','Нужно независимо масштабировать чтение'],
+ avoid:['Простое CRUD-приложение','Команда мала, сложность не окупается','Требуется строгая мгновенная согласованность'],
+ code:{lang:'TypeScript',file:'cqrs.ts',body:`<span class="c">// COMMAND — меняет состояние, ничего не возвращает</span>
+<span class="k">class</span> <span class="t">CreateOrderCommand</span> {
+  <span class="k">constructor</span>(<span class="k">public</span> items: Item[]) {}
+}
+<span class="k">class</span> <span class="t">CommandHandler</span> {
+  <span class="f">handle</span>(cmd: CreateOrderCommand) {
+    <span class="k">const</span> order = <span class="t">Order</span>.<span class="f">create</span>(cmd.items);
+    writeDb.<span class="f">save</span>(order);                 <span class="c">// нормализованная write-модель</span>
+    eventBus.<span class="f">emit</span>(<span class="s">'OrderCreated'</span>, order); <span class="c">// синхронизация чтения</span>
+  }
+}
+
+<span class="c">// QUERY — только читает, из отдельной read-модели</span>
+<span class="k">class</span> <span class="t">GetUserOrders</span> {
+  <span class="f">execute</span>(userId: <span class="t">string</span>) {
+    <span class="c">// денормализованное представление под экран</span>
+    <span class="k">return</span> readDb.<span class="f">query</span>(
+      <span class="s">'SELECT * FROM order_view WHERE user = ?'</span>, userId);
+  }
+}
+<span class="c">// Команда и запрос НИКОГДА не смешиваются в одном методе</span>`},
+ note:'CQRS — это инструмент против конкретной боли (разные требования к чтению и записи), а не цель сама по себе. Нет этой боли — не вводите разделение.'},
+
+/* ===================== BFF ===================== */
+{id:'bff',cat:'Уровень приложения',cc:'#5b9cff',name:'Backend for Frontend (BFF)',
+ tagline:'Отдельный тонкий бэкенд под каждый тип клиента (web, mobile, и т.д.).',
+ sections:[
+  {h:'Зачем понадобился',p:[
+   'Паттерн BFF родился в SoundCloud и был описан Сэмом Ньюманом. Проблема была типичной для эпохи микросервисов и множества клиентов: один общий API пытался угодить и веб-сайту, и мобильному приложению, и партнёрам. В итоге он угождал всем плохо — мобильному клиенту приходило слишком много лишних данных, веб делал по пять запросов вместо одного.',
+   'Решение: для каждого типа клиента создаётся свой узкий бэкенд-посредник — Backend for Frontend. Он знает потребности именно своего клиента и собирает ответ ровно под него.']},
+  {h:'Что решает',p:[
+   'BFF берёт на себя «оркестрацию под клиента»: ходит в нужные микросервисы, объединяет их ответы, отбрасывает лишнее, преобразует формат под конкретный экран. Мобильное приложение получает компактный ответ за один запрос; веб — свою версию, заточенную под него.',
+   'Бонус — команда фронтенда фактически владеет своим BFF и меняет его в своём темпе, не дёргая владельцев основных сервисов. Это снижает связанность между фронтендом и общими API.']},
+  {h:'Границы применимости',p:[
+   'BFF оправдан, когда клиентов несколько и их потребности заметно расходятся, особенно поверх микросервисов. Если клиент один или различия минимальны, отдельный слой BFF — лишняя прослойка, которую придётся поддерживать.',
+   'Риск — дублирование логики между несколькими BFF. Общие правила стоит выносить в нижележащие сервисы, оставляя в BFF только агрегацию и адаптацию под клиента.']}
+ ],
+ analogy:'Это как <strong>персональный официант для каждого типа гостя</strong>: ребёнку приносят детское меню с картинками, бизнесмену — краткое меню на одном листе, туристу — с переводом. Кухня одна, но подача подстроена под каждого. Так и здесь: у мобильного приложения, сайта и умных часов — свой «официант» (бэкенд), который отдаёт данные именно в удобном им виде.',
+ realworld:[{who:'Netflix',what:'Делал отдельные бэкенды для ТВ, телефона и браузера, потому что у каждого устройства свои потребности к данным.'},{who:'Крупные мобильные приложения',what:'Когда у банка есть и сайт, и приложение — у них часто разные BFF, чтобы не перегружать телефон лишними данными.'},{who:'SoundCloud',what:'Один из популяризаторов паттерна — ввёл отдельные backend\'ы под разные клиенты.'}],
+ diag:'soa',dcap:'BFF располагается между клиентами и сервисами, собирая ответ под конкретного клиента (схематично)',
+ good:['Ответ оптимизирован под каждый клиент||Телефон получает компактные данные, сайт — полные: каждому свой «официант».','Меньше лишних данных и round-trip-ов||Клиент получает всё нужное за один запрос, а не дёргает сервер десять раз.','Команда фронтенда владеет своим BFF||Фронтендеры сами правят свой бэкенд под свои нужды, не выпрашивая правки у других.','Снижает связанность фронтенда с общими API||Изменился общий сервис — правки прячутся в BFF, само приложение не страдает.'],
+ bad:['Дополнительный слой для поддержки||Появляется ещё один кусок, который надо писать, обновлять и чинить.','Риск дублирования логики между BFF||Одинаковый код может расползтись по нескольким BFF — для сайта, телефона, часов.','Избыточен при единственном клиенте||Если клиент один, отдельный «официант» под него — пустая трата сил.','Ещё один компонент в инфраструктуре||Больше движущихся частей — больше того, что может сломаться.'],
+ when:['Несколько клиентов с разными нуждами (web/mobile)','Поверх микросервисов нужна агрегация под экран','Фронтенд-команды хотят автономии'],
+ avoid:['Единственный тип клиента','Различия между клиентами незначительны','Нет ресурса на ещё один слой'],
+ code:{lang:'JavaScript',file:'mobile-bff.js',body:`<span class="c">// BFF для мобильного клиента: один запрос → готовый экран</span>
+app.<span class="f">get</span>(<span class="s">'/mobile/home'</span>, <span class="k">async</span> (req, res) =&gt; {
+  <span class="c">// ходим в несколько микросервисов параллельно</span>
+  <span class="k">const</span> [user, orders, promos] = <span class="k">await</span> <span class="t">Promise</span>.<span class="f">all</span>([
+    <span class="f">fetch</span>(<span class="s">'http://users/me'</span>).<span class="f">then</span>(r =&gt; r.<span class="f">json</span>()),
+    <span class="f">fetch</span>(<span class="s">'http://orders/recent?limit=3'</span>).<span class="f">then</span>(r =&gt; r.<span class="f">json</span>()),
+    <span class="f">fetch</span>(<span class="s">'http://promo/active'</span>).<span class="f">then</span>(r =&gt; r.<span class="f">json</span>()),
+  ]);
+
+  <span class="c">// собираем КОМПАКТНЫЙ ответ именно под мобильный экран</span>
+  res.<span class="f">json</span>({
+    name: user.firstName,                <span class="c">// только нужные поля</span>
+    recentOrders: orders.<span class="f">map</span>(o =&gt; ({ id:o.id, sum:o.total })),
+    banner: promos[<span class="n">0</span>]?.image ?? <span class="k">null</span>,
+  });
+  <span class="c">// веб-BFF на тех же сервисах отдаст СВОЮ форму ответа</span>
+});`},
+ note:'BFF принадлежит команде клиента, а не команде платформы. Держите в нём только агрегацию и адаптацию; общие бизнес-правила — глубже, в сервисах.'},
+
+/* ===================== SERVERLESS ===================== */
+{id:'serverless',cat:'Уровень приложения',cc:'#ffd166',name:'Бессерверная (Serverless / FaaS)',
+ tagline:'Логика в виде функций, запускаемых событиями; инфраструктуру держит провайдер.',
+ sections:[
+  {h:'Что это на самом деле',p:[
+   'Слово «бессерверная» вводит в заблуждение: серверы есть, просто вы ими не управляете. В модели Function-as-a-Service вы пишете отдельные функции, а облако само запускает их по событию (HTTP-запрос, сообщение в очереди, загрузка файла), масштабирует число копий под нагрузку и тарифицирует по фактическим вызовам.',
+   'Появилась модель в середине 2010-х (AWS Lambda, 2014) и быстро стала популярной для задач, где нагрузка неравномерна или непредсказуема.']},
+  {h:'Какую проблему решает',p:[
+   'Классический сервер работает (и стоит денег) даже простаивая. Для нерегулярной нагрузки — вебхуки, периодические задачи, обработка загрузок — это расточительно, плюс кто-то должен следить за серверами и масштабированием. Serverless снимает обе проблемы: при отсутствии событий функция не выполняется и не стоит ничего, а при всплеске облако само поднимет хоть тысячу копий.',
+   'Это резко ускоряет запуск: не нужно настраивать и обслуживать инфраструктуру, можно сосредоточиться на коде функции.']},
+  {h:'Ограничения, о которых надо знать',p:[
+   'Холодный старт: если функция давно не вызывалась, первый запуск медленнее — окружение нужно поднять. Лимиты: на время выполнения и память функции есть жёсткие потолки, длинные задачи так не сделать. Привязка к вендору: код и триггеры завязаны на конкретное облако, миграция небесплатна. Локальная отладка и тестирование сложнее, чем у обычного приложения.',
+   'Поэтому serverless хорош для событийных, коротких, изолированных задач — и плохо подходит для долгих вычислений или приложений с постоянной высокой нагрузкой, где выгоднее обычный сервер.']}
+ ],
+ analogy:'Представь <strong>такси вместо собственной машины</strong>: тебе не нужно покупать авто, платить за стоянку и страховку круглый год — ты вызываешь такси только когда надо ехать, и платишь лишь за поездку. Так же и здесь: ты не держишь сервер включённым 24/7, а код запускается сам в ответ на событие и «засыпает», когда не нужен. Платишь только за фактические запуски.',
+ realworld:[{who:'Обработка загруженных файлов',what:'Загрузил фото → функция автоматически создала превью → уснула. AWS Lambda, Google Cloud Functions.'},{who:'Чат-боты и вебхуки',what:'Сообщение пришло → функция обработала → выключилась. Идеально для редкой нерегулярной нагрузки.'},{who:'Стартапы на старте',what:'Не платят за простаивающие серверы — расходы растут только вместе с реальным трафиком.'}],
+ diag:'serverless',dcap:'Событие → триггер → независимые функции (λ) → внешние сервисы',
+ good:['Оплата только за реальные вызовы||Платишь как за такси — лишь за поездки, а не за машину на стоянке круглый год.','Автомасштабирование без настройки||Пришло много запросов — облако само запустит больше копий функции.','Ноль управления серверами||Не надо настраивать и обслуживать сервер — этим занимается облачный провайдер.','Быстрый запуск и низкий порог входа||Написал функцию, залил — и она уже работает, без возни с инфраструктурой.'],
+ bad:['Холодный старт после простоя||Функция, которая давно «спала», первый раз отвечает с задержкой, пока «просыпается».','Лимиты времени и памяти на функцию||Долгую тяжёлую задачу функция не вытянет — её прервут по таймеру.','Привязка к облачному провайдеру||Код подстроен под конкретное облако (AWS и т.п.) — переехать к другому непросто.','Сложнее отладка и локальный запуск||Воспроизвести облачное окружение у себя на ноутбуке трудно.'],
+ when:['Нерегулярная или непредсказуемая нагрузка','Обработка событий, вебхуки, загрузки файлов','Периодические задачи по расписанию','Быстрый MVP без своей инфраструктуры'],
+ avoid:['Постоянная высокая нагрузка (дешевле сервер)','Длительные вычисления вне лимитов','Нужна независимость от вендора','Жёсткие требования к стабильной задержке'],
+ code:{lang:'JavaScript',file:'handler.js',body:`<span class="c">// Функция исполняется ТОЛЬКО при событии. Простой = $0.</span>
+<span class="k">export const</span> <span class="f">handler</span> = <span class="k">async</span> (event) =&gt; {
+  <span class="c">// событие пришло от загрузки файла в хранилище</span>
+  <span class="k">const</span> { fileName, bucket } = event.detail;
+
+  <span class="c">// задача: сделать превью загруженной картинки</span>
+  <span class="k">const</span> image = <span class="k">await</span> <span class="f">download</span>(bucket, fileName);
+  <span class="k">const</span> thumb = <span class="k">await</span> <span class="f">resize</span>(image, <span class="n">200</span>, <span class="n">200</span>);
+  <span class="k">await</span> <span class="f">upload</span>(bucket, <span class="s">\`thumb_\${fileName}\`</span>, thumb);
+
+  <span class="k">return</span> { statusCode: <span class="n">200</span>, body: <span class="s">'Готово'</span> };
+};
+
+<span class="c">// Один файл — одна копия. Тысяча файлов — тысяча копий</span>
+<span class="c">// параллельно. Масштабированием занимается облако.</span>`},
+ note:'Serverless блестящ для коротких событийных задач и нерегулярной нагрузки. Для постоянного высокого трафика посчитайте стоимость: «всегда включённый» сервер часто выходит дешевле.'}
+
+];
+
+/* ============ МОБИЛЬНЫЕ АРХИТЕКТУРЫ ============ */
+
+const MOBILE = [
+
+/* ===================== MVP ===================== */
+{id:'mvp',cat:'Мобильная разработка',cc:'#5b9cff',name:'MVP (Model-View-Presenter)',
+ tagline:'Наследник MVC, где Presenter полностью берёт на себя логику отображения.',
+ sections:[
+  {h:'Почему понадобился именно в мобильной разработке',p:[
+   'Ранний Android поставил разработчиков в неудобное положение: Activity и Fragment одновременно были и экраном (View), и местом, куда стекалась вся логика. Они тяжело тестировались (зависели от Android-фреймворка), разрастались до тысяч строк и пересоздавались при повороте экрана, теряя состояние.',
+   'MVP стал популярным ответом примерно в 2015–2016 годах. Идея — вытащить логику из Activity в отдельный класс Presenter, который не зависит от Android и потому легко покрывается обычными unit-тестами.']},
+  {h:'Как устроено',p:[
+   'View (Activity/Fragment) становится «глупой»: она только показывает то, что велит Presenter, и сообщает ему о действиях пользователя. Presenter содержит логику отображения: получает данные из Model, решает, что показать, и командует View через интерфейс (контракт). Model — это репозиторий и источники данных.',
+   'Ключевая деталь — связь View и Presenter через интерфейс-контракт. Presenter не знает о конкретной Activity, он знает только интерфейс вроде «покажи список», «покажи ошибку». Благодаря этому в тестах вместо настоящей Activity подставляется заглушка.']},
+  {h:'Сильные и слабые места',p:[
+   'MVP заметно улучшил тестируемость и разгрузил Activity. Но у него есть характерные минусы: View и Presenter держат ссылки друг на друга, и нужно аккуратно разрывать их при уничтожении экрана, иначе будут утечки памяти. Контракты-интерфейсы для каждого экрана порождают много шаблонного кода.',
+   'Со временем индустрия в основном перешла на MVVM — там связь односторонняя (через подписку на состояние), что снимает проблему взаимных ссылок. MVP по-прежнему встречается в существующих проектах, и понимать его важно, но для нового кода чаще выбирают MVVM или MVI.']}
+ ],
+ analogy:'Это как <strong>переводчик между двумя людьми, которые не понимают друг друга</strong>: <strong>View</strong> (экран) показывает кнопки, но сама ничего не решает; <strong>Presenter</strong> — посредник, который слушает экран, думает и говорит экрану, что именно показать; <strong>Model</strong> хранит данные. Экран максимально «глупый», вся логика — у посредника, поэтому её удобно тестировать отдельно.',
+ realworld:[{who:'Старые Android-приложения',what:'До эпохи Jetpack MVP был стандартом для разделения логики и Activity/Fragment.'},{who:'Легаси-проекты',what:'Многие большие Android-приложения до сих пор живут на MVP и поддерживаются в этом стиле.'},{who:'Приложения на Java без data binding',what:'Где нет реактивных инструментов, MVP даёт чистый и тестируемый способ организации.'}],
+ diag:'mvp',dcap:'View и Presenter связаны через интерфейс-контракт (двусторонне, но явно)',
+ good:['Логика вынесена из Activity, легко тестируется||Вся «думающая» часть — у Presenter, и её можно проверять без запуска экрана.','Чёткий контракт между View и Presenter||Экран и посредник договариваются через ясный список «что кому можно сказать».','Понятная замена «толстым» Activity||Спасает от экранов-монстров, куда свалена и логика, и отображение.','Низкий порог по сравнению с MVI/Clean||Проще для понимания, чем более строгие современные подходы.'],
+ bad:['Взаимные ссылки → риск утечек памяти||View и Presenter держат друг друга — если забыть «отпустить», память течёт.','Много шаблонных интерфейсов-контрактов||На каждый экран приходится писать связку интерфейсов — рутина.','Presenter может разрастаться||Посредник со временем берёт на себя слишком много и пухнет.','Считается во многом устаревшим для нового кода||Для новых проектов чаще берут MVVM; MVP — скорее для поддержки старого.'],
+ when:['Поддержка существующего проекта на MVP','Команда хорошо знакома именно с этим подходом','Нужно быстро разгрузить «толстые» Activity'],
+ avoid:['Новый проект (предпочтительнее MVVM/MVI)','Сложное реактивное состояние','Хочется избежать ручного управления ссылками'],
+ code:{lang:'Kotlin',file:'LoginPresenter.kt',body:`<span class="c">// Контракт — Presenter знает только интерфейс, не Activity</span>
+<span class="k">interface</span> <span class="t">LoginView</span> {
+    <span class="k">fun</span> <span class="f">showLoading</span>()
+    <span class="k">fun</span> <span class="f">showError</span>(msg: <span class="t">String</span>)
+    <span class="k">fun</span> <span class="f">navigateHome</span>()
+}
+
+<span class="c">// Presenter — логика отображения, без Android-зависимостей</span>
+<span class="k">class</span> <span class="t">LoginPresenter</span>(
+    <span class="k">private val</span> view: LoginView,
+    <span class="k">private val</span> repo: UserRepository   <span class="c">// Model</span>
+) {
+    <span class="k">fun</span> <span class="f">onLogin</span>(login: <span class="t">String</span>, pass: <span class="t">String</span>) {
+        view.<span class="f">showLoading</span>()
+        <span class="k">if</span> (repo.<span class="f">auth</span>(login, pass))
+            view.<span class="f">navigateHome</span>()         <span class="c">// командуем View</span>
+        <span class="k">else</span>
+            view.<span class="f">showError</span>(<span class="s">"Неверный пароль"</span>)
+    }
+}
+
+<span class="c">// Activity лишь реализует LoginView и зовёт presenter.onLogin()</span>`},
+ note:'MVP исторически важен как мост от MVC к современным MV*-подходам. Если начинаете новый проект — почти наверняка стоит брать MVVM или MVI, а не MVP.'},
+
+/* ===================== MVVM ===================== */
+{id:'mvvm',cat:'Мобильная разработка',cc:'#3ddc97',name:'MVVM (Model-View-ViewModel)',
+ tagline:'View подписывается на состояние ViewModel и обновляется автоматически.',
+ sections:[
+  {h:'Текущий стандарт',p:[
+   'MVVM — сегодня основной рекомендованный подход и в Android (Google официально продвигает ViewModel и архитектуру с состоянием), и в iOS (особенно с приходом SwiftUI). Идея пришла из мира Microsoft (WPF, 2005) и отлично легла на современные UI-фреймворки с реактивным связыванием.',
+   'Главное отличие от MVP — характер связи между View и логикой. В MVP Presenter активно дёргает View («покажи это»). В MVVM View сама подписывается на наблюдаемое состояние ViewModel и перерисовывается, когда состояние меняется. ViewModel при этом ничего не знает о конкретной View.']},
+  {h:'Что это меняет на практике',p:[
+   'ViewModel хранит состояние экрана (например, «загрузка / список / ошибка») в наблюдаемых контейнерах: LiveData или StateFlow в Android, @Published в SwiftUI. View подписана на это состояние. Когда данные приходят, ViewModel обновляет состояние — и UI перерисовывается сам, без явных команд.',
+   'Это убирает главную боль MVP: взаимные ссылки исчезают, потому что связь односторонняя. ViewModel переживает поворот экрана (в Android она привязана к жизненному циклу и не пересоздаётся), поэтому состояние не теряется. Тестировать ViewModel легко — это обычный класс без зависимости от UI.']},
+  {h:'О чём стоит помнить',p:[
+   'MVVM не задаёт жёстких правил для слоя данных и домена — он про связь UI и состояния. Поэтому на практике MVVM почти всегда сочетают с Clean Architecture: ViewModel вызывает Use Cases, те ходят в Repository. Так получается полноценная структура приложения (см. Clean для мобильных).',
+   'Типичные ловушки: «толстая» ViewModel, в которую складывают слишком много логики (часть стоит вынести в Use Cases), и попытка держать в ViewModel ссылки на View или контекст Android — этого делать нельзя, иначе теряется тестируемость и появляются утечки.']}
+ ],
+ analogy:'Представь <strong>умное табло на вокзале</strong>: ты не перерисовываешь его вручную — оно само обновляется, как только меняется расписание. <strong>ViewModel</strong> хранит «текущее состояние» (какие поезда и во сколько), а <strong>экран</strong> просто подписан на него и сам перерисовывается при изменении. Тебе не нужно вручную говорить каждой надписи «обновись» — она реагирует автоматически.',
+ realworld:[{who:'Современный Android (Jetpack)',what:'Google официально рекомендует MVVM с ViewModel и Compose — это стандарт для новых приложений.'},{who:'iOS на SwiftUI',what:'Реактивное связывание состояния и интерфейса — естественная основа SwiftUI.'},{who:'WPF / .NET-десктоп',what:'MVVM появился именно здесь и до сих пор основной подход для настольных приложений Microsoft.'}],
+ diag:'mvvm',dcap:'View подписана на состояние ViewModel и обновляется сама; обратной ссылки нет',
+ good:['Односторонняя связь — нет взаимных ссылок||Экран подписан на ViewModel, но не наоборот — меньше путаницы и утечек.','ViewModel переживает поворот экрана||Повернул телефон — данные не потерялись, ViewModel живёт дольше экрана.','Отличная тестируемость без UI||Состояние и логику проверяешь без запуска интерфейса.','Идеально ложится на Compose/SwiftUI/LiveData||Современные инструменты сами умеют «слушать» состояние и перерисовываться.'],
+ bad:['ViewModel склонна разрастаться||Если не следить, в неё стекается слишком много логики.','Не описывает слои данных/домена сама по себе||MVVM про связь экрана и состояния, но не про то, откуда берутся данные.','Реактивность требует привыкания||Идея «экран сам реагирует на изменения» поначалу непривычна новичкам.','Для простейших экранов может быть избыточна||Ради одной надписи заводить ViewModel — иногда перебор.'],
+ when:['Новый Android- или iOS-проект','Используется Jetpack Compose или SwiftUI','Нужно надёжно переживать пересоздание экрана','Команда ценит тестируемость UI-логики'],
+ avoid:['Очень простой статичный экран без состояния','Команда совсем не знакома с реактивностью','Уже глубоко вложились в другой подход без причин менять'],
+ code:{lang:'Kotlin',file:'LoginViewModel.kt',body:`<span class="c">// Состояние экрана как наблюдаемый поток</span>
+<span class="k">sealed class</span> <span class="t">LoginState</span> {
+    <span class="k">object</span> <span class="t">Idle</span> : LoginState()
+    <span class="k">object</span> <span class="t">Loading</span> : LoginState()
+    <span class="k">data class</span> <span class="t">Error</span>(<span class="k">val</span> msg: <span class="t">String</span>) : LoginState()
+    <span class="k">object</span> <span class="t">Success</span> : LoginState()
+}
+
+<span class="k">class</span> <span class="t">LoginViewModel</span>(<span class="k">private val</span> login: LoginUseCase) : <span class="t">ViewModel</span>() {
+    <span class="c">// View подпишется на этот поток</span>
+    <span class="k">private val</span> _state = <span class="f">MutableStateFlow</span>&lt;LoginState&gt;(LoginState.Idle)
+    <span class="k">val</span> state: StateFlow&lt;LoginState&gt; = _state
+
+    <span class="k">fun</span> <span class="f">submit</span>(user: <span class="t">String</span>, pass: <span class="t">String</span>) {
+        _state.value = LoginState.Loading
+        <span class="f">viewModelScope</span>.<span class="f">launch</span> {
+            _state.value = <span class="k">if</span> (login(user, pass)) LoginState.Success
+                           <span class="k">else</span> LoginState.<span class="f">Error</span>(<span class="s">"Ошибка входа"</span>)
+        }
+    }
+    <span class="c">// ViewModel НЕ знает о View — только меняет состояние</span>
+}`},
+ note:'MVVM отвечает за связь UI и состояния, но не за весь app. На практике это «MVVM + Clean»: ViewModel → UseCase → Repository. Не складывайте всё в одну ViewModel.'},
+
+/* ===================== MVI ===================== */
+{id:'mvi',cat:'Мобильная разработка',cc:'#c792ea',name:'MVI (Model-View-Intent)',
+ tagline:'Однонаправленный поток данных: одно неизменяемое состояние на весь экран.',
+ sections:[
+  {h:'Откуда идея',p:[
+   'MVI выросла из мира фронтенда — из Redux и архитектуры Elm — и пришла в мобильную разработку как ответ на хаос «много источников меняют UI как попало». Особенно естественно она ложится на декларативные UI: Jetpack Compose и SwiftUI, где экран — это функция от состояния.',
+   'Центральная идея — единый источник истины: всё состояние экрана хранится в одном неизменяемом (immutable) объекте State. UI никогда не меняется напрямую; он всегда перерисовывается из текущего State целиком.']},
+  {h:'Как работает цикл',p:[
+   'Поток строго однонаправленный и образует цикл. Пользователь порождает Intent (намерение, например «нажал кнопку входа»). Intent попадает в обработчик (reducer), который на основе текущего State и этого намерения вычисляет новый State. Новый State отдаётся во View, и та перерисовывается. Круг замкнулся.',
+   'Поскольку State неизменяемый и единственный, в любой момент времени точно известно, что на экране. Это убирает целый класс багов «UI и данные рассинхронизировались». Как бонус — состояние легко логировать, сохранять и воспроизводить (отладка «перемоткой»).']},
+  {h:'Плюсы, минусы и место среди прочих',p:[
+   'MVI даёт максимальную предсказуемость: один вход (Intent) → один выход (новый State) → один рендер. Это особенно ценно для сложных экранов с множеством взаимозависимых состояний. Минус — многословность: даже простое действие проходит весь цикл, и на мелкие экраны это ложится тяжеловато. Порог входа выше, чем у MVVM.',
+   'По сути MVI — это «MVVM с дисциплиной единого состояния и однонаправленного потока». Многие современные Android-проекты используют MVVM-каркас (ViewModel) и внутри него реализуют MVI-подход к состоянию. Так что это не столько конкуренты, сколько совместимые уровни строгости.']}
+ ],
+ analogy:'Это как <strong>один пульт и одно табло счёта в игре</strong>: есть единственное «состояние мира» (счёт, время, жизни), и оно меняется только по чётким командам (намерениям) — «забить гол», «потратить жизнь». Нельзя поменять счёт втихаря из десяти мест: всё идёт через один поток, поэтому всегда понятно, как мы пришли к текущей картинке. Один источник правды, движение строго в одну сторону.',
+ realworld:[{who:'Сложные экраны со множеством состояний',what:'Когда у экрана много возможных состояний (загрузка, ошибка, пусто, данные) — единое состояние спасает от путаницы.'},{who:'Приложения на Kotlin + Compose',what:'MVI хорошо ложится на реактивные потоки и однонаправленный поток данных.'},{who:'Команды, ценящие предсказуемость',what:'Идея пришла из веба (Redux/Elm) и популярна там, где важна воспроизводимость багов.'}],
+ diag:'mvi',dcap:'Замкнутый цикл: Intent → новый State (reducer) → render → снова Intent',
+ good:['Единый источник истины — нет рассинхрона UI||Одно «состояние мира» на экран — UI не может показать противоречивые данные.','Максимально предсказуемое поведение||Состояние меняется только по чётким командам — всегда понятно, как пришли к картинке.','Состояние легко логировать и воспроизводить||Можно записать всю цепочку и повторить баг шаг за шагом.','Идеально для Compose/SwiftUI и сложных экранов||Когда у экрана много состояний (загрузка, ошибка, данные) — спасает от хаоса.'],
+ bad:['Многословность даже для простых действий||Даже на простое нажатие надо описать намерение и новое состояние — много кода.','Высокий порог входа||Однонаправленный поток данных — непростая идея для начинающих.','Перерисовка всего State может быть избыточной||Иногда обновить надо одну надпись, а пересобирается всё состояние целиком.','Сложнее для маленьких экранов||Для простой формы вся эта строгость — лишний вес.'],
+ when:['Сложные экраны с множеством состояний','Используется декларативный UI (Compose/SwiftUI)','Команде важна предсказуемость и отладка состояния','Уже есть опыт с Redux/Elm-подходом'],
+ avoid:['Простые экраны — цикл будет тяжеловесен','Команда новичков без опыта реактивности','Нужно быстро и без церемоний'],
+ code:{lang:'Kotlin',file:'LoginMvi.kt',body:`<span class="c">// STATE — единое неизменяемое состояние экрана</span>
+<span class="k">data class</span> <span class="t">LoginState</span>(
+    <span class="k">val</span> loading: <span class="t">Boolean</span> = <span class="k">false</span>,
+    <span class="k">val</span> error: <span class="t">String</span>? = <span class="k">null</span>,
+    <span class="k">val</span> success: <span class="t">Boolean</span> = <span class="k">false</span>
+)
+
+<span class="c">// INTENT — намерения пользователя</span>
+<span class="k">sealed interface</span> <span class="t">LoginIntent</span> {
+    <span class="k">data class</span> <span class="t">Submit</span>(<span class="k">val</span> user: <span class="t">String</span>, <span class="k">val</span> pass: <span class="t">String</span>) : LoginIntent
+}
+
+<span class="k">class</span> <span class="t">LoginViewModel</span>(<span class="k">val</span> auth: LoginUseCase) : <span class="t">ViewModel</span>() {
+    <span class="k">val</span> state = <span class="f">MutableStateFlow</span>(<span class="f">LoginState</span>())
+
+    <span class="c">// reducer: (текущий State + Intent) → новый State</span>
+    <span class="k">fun</span> <span class="f">process</span>(intent: LoginIntent) = <span class="k">when</span> (intent) {
+        <span class="k">is</span> LoginIntent.Submit -&gt; {
+            state.value = state.value.<span class="f">copy</span>(loading = <span class="k">true</span>)
+            <span class="f">viewModelScope</span>.<span class="f">launch</span> {
+                <span class="k">val</span> ok = <span class="f">auth</span>(intent.user, intent.pass)
+                state.value = <span class="f">LoginState</span>(success = ok,
+                    error = <span class="k">if</span> (ok) <span class="k">null</span> <span class="k">else</span> <span class="s">"Ошибка"</span>)
+            }
+        }
+    }
+}`},
+ note:'MVI и MVVM не враги: чаще всего MVI реализуют внутри ViewModel. Берите строгость MVI там, где состояние экрана сложное; для простого экрана хватит обычного MVVM.'},
+
+/* ===================== CLEAN (mobile) ===================== */
+{id:'cleanmob',cat:'Мобильная разработка',cc:'#ff7849',name:'Clean Architecture (мобильная)',
+ tagline:'Три слоя — Presentation, Domain, Data — с зависимостями к центру.',
+ sections:[
+  {h:'Зачем мобильным приложениям отдельный «силовой каркас»',p:[
+   'MVVM, MVP и MVI отвечают на вопрос «как связать экран с логикой». Но они не говорят, как организовать всё приложение целиком: где живут бизнес-правила, как обращаться к сети и базе, как всё это тестировать. На этот вопрос отвечает Clean Architecture — адаптация идей Роберта Мартина и луковичной архитектуры под мобильную специфику.',
+   'Она стала де-факто стандартом для средних и крупных Android/iOS-приложений, потому что мобильный код особенно страдает от смешения слоёв: UI-классы легко обрастают сетевыми вызовами и SQL, что делает их нетестируемыми и хрупкими.']},
+  {h:'Три слоя и правило зависимостей',p:[
+   'Presentation — это UI и держатели состояния (ViewModel/Presenter), то есть один из MV*-подходов выше. Domain — чистый слой бизнес-логики: Use Cases (сценарии) и Entities, написанные на чистом Kotlin/Swift без единой зависимости от Android/iOS, сети или БД. Data — репозитории и их источники: API, локальная база, кэш.',
+   'Главное правило — зависимости направлены внутрь, к Domain. Presentation зависит от Domain, Data тоже зависит от Domain (реализуя его интерфейсы), но сам Domain не зависит ни от кого. Это инверсия зависимостей: Domain объявляет интерфейс репозитория, а слой Data его реализует.']},
+  {h:'Что это даёт и чем платим',p:[
+   'Доменный слой можно тестировать обычными быстрыми unit-тестами — без эмулятора, без сети, без базы. Источники данных (например, переход с REST на GraphQL или смена локальной БД) меняются, не затрагивая логику. UI-подход (MVVM сегодня, что-то ещё завтра) тоже меняется изолированно. Код становится модульным и понятным новым членам команды.',
+   'Цена — заметное количество слоёв, интерфейсов и моделей-преобразований (отдельные модели для data, domain и presentation). Для маленького приложения на пару экранов это перебор; там достаточно простого MVVM. Чем крупнее и долговечнее проект, тем сильнее окупается дисциплина Clean.']}
+ ],
+ analogy:'Представь <strong>хорошо организованную компанию с чёткими отделами</strong>: топ-менеджмент задаёт правила (бизнес-логика), средний слой переводит решения в задачи, а исполнители работают с конкретными инструментами (база, сеть, экран). Приказы идут от центра наружу, а детали реализации не диктуют правила компании. Поменялся подрядчик или инструмент — суть бизнеса не пострадала.',
+ realworld:[{who:'Крупные мобильные приложения',what:'Банки, маркетплейсы и большие продукты делят код на слои (domain / data / presentation), чтобы команда не путалась.'},{who:'Долгоживущие проекты',what:'Где приложение развивается годами и важно легко менять источники данных и UI-фреймворк.'},{who:'Командная разработка',what:'Чёткие границы слоёв позволяют разным разработчикам работать параллельно, не мешая друг другу.'}],
+ diag:'cleanmob',dcap:'Presentation → Domain ← Data: домен в центре и ни от кого не зависит',
+ good:['Бизнес-логика тестируется без эмулятора и сети||Правила проверяются на чистом коде, без запуска телефона и интернета.','Источники данных и UI меняются изолированно||Сменить базу или экранный фреймворк можно, не трогая суть приложения.','Чёткая модульная структура для роста проекта||Понятные отделы (domain / data / presentation) не дают большому проекту запутаться.','Сочетается с любым MV*-подходом в Presentation||Внутри слоя экрана можно использовать MVVM или MVI — на выбор.'],
+ bad:['Много слоёв, интерфейсов и моделей-маппингов||Данные переписываются из слоя в слой — пишешь много «переходников».','Избыточна для маленьких приложений||Простому приложению столько слоёв ни к чему — только тормозит работу.','Высокий порог входа для новичков||Сразу понять, зачем столько отделов и границ, начинающему трудно.','Требует дисциплины, иначе слои «протекают»||Нарушил правила границ один раз — и вся стройность рушится.'],
+ when:['Среднее или крупное приложение на годы','Команда из нескольких человек','Важна тестируемость и сменность источников данных','Бизнес-логика нетривиальна'],
+ avoid:['Маленькое приложение на пару экранов','Прототип или одноразовый проект','Команда не готова поддерживать слои'],
+ code:{lang:'Kotlin',file:'CleanLayers.kt',body:`<span class="c">// ===== DOMAIN ===== чистый Kotlin, без Android/сети/БД</span>
+<span class="k">data class</span> <span class="t">User</span>(<span class="k">val</span> id: <span class="t">String</span>, <span class="k">val</span> name: <span class="t">String</span>)
+
+<span class="c">// интерфейс объявляет ДОМЕН (а реализует — слой Data)</span>
+<span class="k">interface</span> <span class="t">UserRepository</span> {
+    <span class="k">suspend fun</span> <span class="f">login</span>(u: <span class="t">String</span>, p: <span class="t">String</span>): User?
+}
+
+<span class="c">// Use Case — один сценарий, легко тестируется</span>
+<span class="k">class</span> <span class="t">LoginUseCase</span>(<span class="k">private val</span> repo: UserRepository) {
+    <span class="k">suspend operator fun</span> <span class="f">invoke</span>(u: <span class="t">String</span>, p: <span class="t">String</span>) =
+        repo.<span class="f">login</span>(u, p) != <span class="k">null</span>
+}
+
+<span class="c">// ===== DATA ===== реализует интерфейс домена (инверсия)</span>
+<span class="k">class</span> <span class="t">UserRepositoryImpl</span>(
+    <span class="k">private val</span> api: ApiService,
+    <span class="k">private val</span> dao: UserDao
+) : UserRepository {
+    <span class="k">override suspend fun</span> <span class="f">login</span>(u: <span class="t">String</span>, p: <span class="t">String</span>): User? {
+        <span class="k">val</span> dto = api.<span class="f">auth</span>(u, p) ?: <span class="k">return</span> <span class="k">null</span>
+        dao.<span class="f">cache</span>(dto)                     <span class="c">// локальный кэш</span>
+        <span class="k">return</span> <span class="f">User</span>(dto.id, dto.name)        <span class="c">// маппинг в domain-модель</span>
+    }
+}
+<span class="c">// ===== PRESENTATION ===== ViewModel вызывает LoginUseCase</span>`},
+ note:'Clean — это не альтернатива MVVM/MVI, а слой над ними. Связка обычно такая: «Presentation (MVVM) + Domain (UseCases) + Data (Repository)». Берите её соразмерно размеру проекта.'}
+
+];
+
+
+/* ====== СБОРКА ДАННЫХ ====== */
+const ALL = [...SERVER, ...APP, ...MOBILE];
+const CATS = [
+  {name:'Системный уровень',desc:'Определяют, из каких крупных частей состоит вся система и как они физически разделены и общаются. Это решения «в большом».'},
+  {name:'Уровень приложения',desc:'Организуют код внутри одного приложения или сервиса: как разложить логику, изолировать домен и связать его с внешним миром.'},
+  {name:'Мобильная разработка',desc:'Подходы, выросшие специально под Android и iOS: как связать экран с логикой и как устроить мобильное приложение целиком.'}
+];
+
+/* ====== РЕНДЕР НАВИГАЦИИ ====== */
+const nav=document.getElementById('nav'),content=document.getElementById('content'),searchEl=document.getElementById('search');
+let cur='home';
+
+function buildNav(filter=''){
+  const f=filter.toLowerCase();
+  let html=`<button class="nav-item ${cur==='home'?'active':''}" onclick="go('home')"><span class="dot" style="background:var(--acc)"></span>Главная</button>`;
+  html+=`<button class="nav-item ${cur==='compare'?'active':''}" onclick="go('compare')"><span class="dot" style="background:var(--acc-5)"></span>Как выбирать · сравнение</button>`;
+  CATS.forEach(c=>{
+    const items=ALL.filter(d=>d.cat===c.name && (d.name.toLowerCase().includes(f)||d.tagline.toLowerCase().includes(f)));
+    if(!items.length)return;
+    html+=`<div class="nav-group-label">${c.name}</div>`;
+    items.forEach(d=>{html+=`<button class="nav-item ${cur===d.id?'active':''}" onclick="go('${d.id}')"><span class="dot" style="background:${d.cc}"></span>${d.name}</button>`});
+  });
+  nav.innerHTML=html;
+}
+
+/* ====== ГЛАВНАЯ ====== */
+function renderHome(){
+  const stats=[[ALL.length,'архитектурных подходов'],['3','уровня абстракции'],['4','мобильные архитектуры'],['100%','с кодом и схемами']];
+  let cats=CATS.map(c=>{
+    const items=ALL.filter(d=>d.cat===c.name);
+    const cards=items.map((d,i)=>`
+      <div class="arch-card" style="--cc:${d.cc}" onmousemove="cardGlow(event,this)" onclick="go('${d.id}')">
+        <div class="idx">${String(ALL.indexOf(d)+1).padStart(2,'0')}</div>
+        <h4>${d.name}</h4><p>${d.tagline}</p>
+        <span class="go">Читать статью →</span>
+      </div>`).join('');
+    return `<div class="cat-section">
+      <div class="cat-head"><h3>${c.name}</h3><span class="meta">${items.length} подход(а/ов)</span></div>
+      <p class="cat-desc">${c.desc}</p>
+      <div class="cards-grid">${cards}</div></div>`;
+  }).join('');
+  return `<div class="page active hero">
+    <div class="kicker">Образовательный атлас · для студентов</div>
+    <h2>Как устроено <em>программное<br>обеспечение</em> изнутри</h2>
+    <p class="lead">Не короткая шпаргалка, а разбор: откуда взялся каждый подход, какую боль он лечит, как устроен и — главное — когда его стоит и не стоит выбирать. С диаграммами и примерами кода.</p>
+    <div class="hero-stats">${stats.map(s=>`<div class="stat"><div class="num">${s[0]}</div><div class="lbl">${s[1]}</div></div>`).join('')}</div>
+    <div class="intro-note"><strong>Как читать атлас.</strong> Архитектуры живут на разных уровнях: системные решают, из каких частей состоит вся система; уровень приложения — как организован код внутри одной части; мобильные — специфика Android/iOS. Эти уровни не конкурируют, а дополняют друг друга: реальный проект обычно сочетает несколько (например, микросервисы + внутри каждого слои + гексагональное ядро). Если не знаете, с чего начать — откройте раздел <strong>«Как выбирать»</strong>.</div>
+    ${cats}</div>`;
+}
+
+/* ====== СТАТЬЯ ====== */
+function fb(x){const i=x.indexOf('||');return i<0?`<li>${x}</li>`:`<li><span class="ft">${x.slice(0,i)}</span><span class="fexp">${x.slice(i+2)}</span></li>`}
+function renderArticle(d){
+  const pos=ALL.indexOf(d), prev=pos>0?ALL[pos-1]:null, next=pos<ALL.length-1?ALL[pos+1]:null;
+  const proseHtml=d.sections.map(s=>`<h5 class="sub">${s.h}</h5>${s.p.map(p=>`<p>${p}</p>`).join('')}`).join('');
+  return `<div class="page active">
+    <div class="art-head">
+      <div class="art-accent" style="background:${d.cc}"></div>
+      <div class="cat" style="color:${d.cc}">${d.cat}</div>
+      <h2>${d.name}</h2>
+      <p class="tagline">${d.tagline}</p>
+    </div>
+
+    <section class="block"><div class="prose">${proseHtml}</div></section>
+
+    ${d.analogy?`<section class="block">
+      <div class="section-label"><h4>Простыми словами</h4><div class="ln"></div></div>
+      <div class="analogy"><span class="tag">Аналогия из жизни</span><p>${d.analogy}</p></div>
+    </section>`:''}
+
+    ${d.realworld?`<section class="block">
+      <div class="section-label"><h4>Где это работает в реальности</h4><div class="ln"></div></div>
+      <div class="realworld">${d.realworld.map(r=>`<div class="rw-card"><div class="who">${r.who}</div><div class="what">${r.what}</div></div>`).join('')}</div>
+    </section>`:''}
+
+    <section class="block">
+      <div class="section-label"><h4>Визуализация структуры</h4><div class="ln"></div></div>
+      <div class="diagram">${DIAG[d.diag]}<div class="cap">▲ ${d.dcap}</div></div>
+    </section>
+
+    <section class="block">
+      <div class="section-label"><h4>Сильные и слабые стороны</h4><div class="ln"></div></div>
+      <div class="two-col">
+        <div class="feat good"><h5>Преимущества</h5><ul>${d.good.map(x=>fb(x)).join('')}</ul></div>
+        <div class="feat bad"><h5>Недостатки и риски</h5><ul>${d.bad.map(x=>fb(x)).join('')}</ul></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="section-label"><h4>Когда выбирать этот подход</h4><div class="ln"></div></div>
+      <div class="choose">
+        <div class="box yes"><h5>Подойдёт, если</h5><ul>${d.when.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+        <div class="box no"><h5>Лучше не брать, если</h5><ul>${d.avoid.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="section-label"><h4>Пример кода</h4><div class="ln"></div></div>
+      <div class="code-wrap">
+        <div class="code-top"><div class="dots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span class="fname">${d.code.file}</span><span class="lang">${d.code.lang}</span></div>
+        <pre><code>${d.code.body}</code></pre>
+      </div>
+      <div class="callout"><span class="ico">ПРИНЦИП</span><p>${d.note}</p></div>
+    </section>
+
+    <div class="footer-nav">
+      ${prev?`<button class="fnav-btn" onclick="go('${prev.id}')"><small>← ПРЕДЫДУЩИЙ</small><span>${prev.name}</span></button>`:`<button class="fnav-btn" onclick="go('home')"><small>←</small><span>На главную</span></button>`}
+      ${next?`<button class="fnav-btn next" onclick="go('${next.id}')"><small>СЛЕДУЮЩИЙ →</small><span>${next.name}</span></button>`:`<button class="fnav-btn next" onclick="go('compare')"><small>ДАЛЬШЕ →</small><span>Как выбирать</span></button>`}
+    </div>
+  </div>`;
+}
+
+/* ====== СТРАНИЦА СРАВНЕНИЯ ====== */
+function lvl(v){const m={h:'высокая',m:'средняя',l:'низкая'};return `<span class="lvl ${v}">${m[v]}</span>`}
+function renderCompare(){
+  // [name, id, сложность, масштабируемость, тестируемость, порог входа, когда]
+  const rows=[
+   ['Монолит','monolith','l','m','m','l','Старт, MVP, малые команды'],
+   ['Многослойная','layered','l','m','m','l','Стандартные бизнес-приложения'],
+   ['Микроядро','microkernel','m','m','m','m','Продукты с плагинами/кастомизацией'],
+   ['Микросервисы','micro','h','h','m','h','Крупные системы, много команд'],
+   ['SOA','soa','h','m','m','h','Интеграция legacy на предприятии'],
+   ['Событийная','event','h','h','m','h','Реактивные системы реального времени'],
+   ['Конвейер','pipeline','l','h','h','l','Обработка данных, ETL, компиляторы'],
+   ['MVC','mvc','l','m','m','l','Серверные веб-приложения'],
+   ['Гексагональная','hex','m','m','h','m','Сложный домен, сменные технологии'],
+   ['Onion / Clean','onion','m','m','h','m','Крупные долгоживущие приложения'],
+   ['CQRS','cqrs','h','h','m','h','Перекос чтения над записью'],
+   ['BFF','bff','m','m','m','m','Несколько разных клиентов'],
+   ['Serverless','serverless','m','h','m','m','Нерегулярная событийная нагрузка'],
+   ['MVP (mobile)','mvp','l','—','m','l','Поддержка существующих Android-проектов'],
+   ['MVVM (mobile)','mvvm','m','—','h','m','Новые Android/iOS, Compose/SwiftUI'],
+   ['MVI (mobile)','mvi','m','—','h','h','Сложные экраны, единое состояние'],
+   ['Clean (mobile)','cleanmob','m','—','h','m','Средние/крупные мобильные приложения'],
+  ];
+  const body=rows.map(r=>`<tr onclick="go('${r[1]}')" style="cursor:pointer">
+    <td>${r[0]}</td><td>${lvl(r[2])}</td><td>${r[3]==='—'?'<span style="color:var(--ink-dim)">—</span>':lvl(r[3])}</td>
+    <td>${lvl(r[4])}</td><td>${lvl(r[5])}</td><td style="color:var(--ink-soft);font-weight:400">${r[6]}</td></tr>`).join('');
+  return `<div class="page active">
+    <div class="art-head"><div class="art-accent" style="background:var(--acc-5)"></div>
+      <div class="cat" style="color:var(--acc-5)">Навигатор</div>
+      <h2>Как выбирать архитектуру</h2>
+      <p class="tagline">Не существует «лучшей» архитектуры — есть подходящая под контекст. Ниже — ориентиры и быстрое сравнение всех подходов атласа.</p></div>
+
+    <section class="block"><div class="prose">
+      <h5 class="sub">Три вопроса перед выбором</h5>
+      <p><strong>Какой масштаб и команда?</strong> Маленький проект и команда — начинайте с простого (монолит, слои, MVC; для мобильных — MVVM). Сложность архитектуры должна расти вслед за реальной потребностью, а не опережать её.</p>
+      <p><strong>Что именно болит?</strong> Архитектура — это лекарство от конкретной боли. Долгие релизы и мешающие друг другу команды → микросервисы. Логика тонет в инфраструктуре → гексагональная/Clean. Чтение душит запись → CQRS. Нет боли — не вводите сложность «на будущее».</p>
+      <p><strong>Можно ли комбинировать?</strong> Да, и почти всегда так и делают. Уровни дополняют друг друга: система из микросервисов, где каждый сервис внутри многослойный с гексагональным ядром и событийным общением между сервисами. Выбор — это не «или-или», а набор решений на разных уровнях.</p>
+      <h5 class="sub">Главное правило эволюции</h5>
+      <p>Начинайте проще, чем кажется нужным, и усложняйте по мере роста боли. Большинство провалов в архитектуре — это не «взяли слишком простое», а «взяли слишком сложное слишком рано»: команда тонет в инфраструктуре вместо того, чтобы делать продукт.</p>
+    </div></section>
+
+    <section class="block">
+      <div class="section-label"><h4>Сравнительная таблица</h4><div class="ln"></div></div>
+      <div class="cmp-wrap"><table class="cmp">
+        <thead><tr><th>Подход</th><th>Сложность</th><th>Масштабируемость</th><th>Тестируемость</th><th>Порог входа</th><th>Когда уместен</th></tr></thead>
+        <tbody>${body}</tbody>
+      </table></div>
+      <div class="callout"><span class="ico">СОВЕТ</span><p>Клик по строке открывает подробную статью. «Сложность» и «порог входа» — это цена; платите её только когда она окупается масштабом и реальными требованиями.</p></div>
+    </section>
+  </div>`;
+}
+
+/* ====== РОУТЕР ====== */
+function go(id){
+  cur=id;
+  if(id==='home'){content.innerHTML=renderHome();setCrumb('<b>Главная</b>');setProg(0)}
+  else if(id==='compare'){content.innerHTML=renderCompare();setCrumb('Навигатор / <b>Как выбирать</b>');setProg(0)}
+  else{const d=ALL.find(x=>x.id===id);content.innerHTML=renderArticle(d);
+    setCrumb(`${d.cat} / <b>${d.name}</b>`);setProg(ALL.indexOf(d)+1)}
+  buildNav(searchEl.value);
+  document.getElementById('sidebar').classList.remove('open');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function setCrumb(h){document.getElementById('crumb').innerHTML='Атлас / '+h}
+function setProg(n){document.getElementById('ptext').textContent=`${n} / ${ALL.length}`;document.getElementById('pbar').style.width=(n/ALL.length*100)+'%'}
+function cardGlow(e,el){const r=el.getBoundingClientRect();el.style.setProperty('--mx',(e.clientX-r.left)+'px');el.style.setProperty('--my',(e.clientY-r.top)+'px')}
+searchEl.addEventListener('input',e=>buildNav(e.target.value));
+
+buildNav();go('home');
+</script>
+</body>
+</html>
